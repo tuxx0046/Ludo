@@ -35,34 +35,34 @@ namespace LudoClassLibrary
             #region Base fields
             blueBase = new Field[]
             {
-                new Field("Base0"),
-                new Field("Base1"),
-                new Field("Base2"),
-                new Field("Base3")
+                new Field("BlueBase0"),
+                new Field("BlueBase1"),
+                new Field("BlueBase2"),
+                new Field("BlueBase3")
             };
 
             greenBase = new Field[]
             {
-                new Field("Base0"),
-                new Field("Base1"),
-                new Field("Base2"),
-                new Field("Base3")
+                new Field("GreenBase0"),
+                new Field("GreenBase1"),
+                new Field("GreenBase2"),
+                new Field("GreenBase3")
             };
 
             redBase = new Field[]
             {
-                new Field("Base0"),
-                new Field("Base1"),
-                new Field("Base2"),
-                new Field("Base3")
+                new Field("RedBase0"),
+                new Field("RedBase1"),
+                new Field("RedBase2"),
+                new Field("RedBase3")
             };
 
             yellowBase = new Field[]
             {
-                new Field("Base0"),
-                new Field("Base1"),
-                new Field("Base2"),
-                new Field("Base3")
+                new Field("YellowBase0"),
+                new Field("YellowBase1"),
+                new Field("YellowBase2"),
+                new Field("YellowBase3")
             };
             #endregion
 

@@ -17,7 +17,8 @@ namespace LudoClassLibrary
         public int BasePositionId { get; }
 
         /// <summary>
-        /// The position tells where on the route (Field) a Piece is.
+        /// The position tells where on the route (Field) a Piece is.<br/>
+        /// Use as Route index.
         /// </summary>
         public int RoutePosition;
         public bool reachedGoal { get; set; } = false;
@@ -29,7 +30,7 @@ namespace LudoClassLibrary
         /// Each player has four Pieces, and each Piece must have a LudoColor matching the player that owns it.
         /// </summary>
         /// <param name="color">Must be a valid color from LudoColor</param>
-        /// <param name="basePosition">Must be a valid color from LudoColor</param>
+        /// <param name="basePositionId">Position from 0 to 3</param>
         public Piece(LudoColor color, int basePositionId) 
         {
             this.color = color;

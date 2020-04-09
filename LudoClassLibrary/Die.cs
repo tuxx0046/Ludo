@@ -15,16 +15,27 @@ namespace LudoClassLibrary
 
         #region Properties
         /// <summary>
-        /// Returns a random value between 1 and 6
+        /// Returns a random value between 1 and 6. <br/>
+        /// Registers that is has been thrown when calling value.
         /// </summary>
         public static int RandomDieValue
         {
             get
             {
                 int dieValue = random.Next(1, 7);
+                HasBeenThrown = true;
                 return dieValue;
             }
         }
+
+        /// <summary>
+        /// True if it has been thrown
+        /// </summary>
+        public static bool HasBeenThrown { get; set; } = false;
+        /// <summary>
+        /// Counts number of times it has been thrown.
+        /// </summary>
+        public static int TimesThrown { get; set; } = 0;
         #endregion
     }
 }

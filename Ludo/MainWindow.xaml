@@ -44,30 +44,30 @@
                 <ColumnDefinition Width="*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
             <!-- Bases -->
-            <Button Name="BlueBase1" Grid.Column="1" Grid.Row="2" Content="0" FontSize="52" Foreground="White" Background="Blue"></Button>
-            <Button Name="BlueBase2" Grid.Column="4" Grid.Row="2" Content="1" FontSize="42" Foreground="White" Background="Blue"></Button>
-            <Button Name="BlueBase3" Grid.Column="1" Grid.Row="4" Content="2" FontSize="42" Foreground="White" Background="Blue"></Button>
-            <Button Name="BlueBase4" Grid.Column="4" Grid.Row="4" Content="3" FontSize="42" Foreground="White" Background="Blue" Click="Button_Click"></Button>
+            <Button Name="BlueBase0" Grid.Column="1" Grid.Row="2" Content="0" FontSize="42" Foreground="White" Background="Blue" Click="MovePieceFromAndTo"></Button>
+            <Button Name="BlueBase1" Grid.Column="4" Grid.Row="2" Content="1" FontSize="42" Foreground="White" Background="Blue" Click="MovePieceFromAndTo"></Button>
+            <Button Name="BlueBase2" Grid.Column="1" Grid.Row="4" Content="2" FontSize="42" Foreground="White" Background="Blue" Click="MovePieceFromAndTo"></Button>
+            <Button Name="BlueBase3" Grid.Column="4" Grid.Row="4" Content="3" FontSize="42" Foreground="White" Background="Blue" Click="MovePieceFromAndTo"></Button>
 
-            <Button Name="GreenBase1" Grid.Column="10" Grid.Row="1" Content="0" FontSize="42" Foreground="White" Background="Green"></Button>
-            <Button Name="GreenBase2" Grid.Column="12" Grid.Row="1" Content="1" FontSize="42" Foreground="White" Background="Green"></Button>
-            <Button Name="GreenBase3" Grid.Column="10" Grid.Row="4" Content="2" FontSize="42" Foreground="White" Background="Green"></Button>
-            <Button Name="GreenBase4" Grid.Column="12" Grid.Row="4" Content="3" FontSize="42" Foreground="White" Background="Green"></Button>
+            <Button Name="GreenBase0" Grid.Column="10" Grid.Row="1" Content="0" FontSize="42" Foreground="White" Background="Green"></Button>
+            <Button Name="GreenBase1" Grid.Column="12" Grid.Row="1" Content="1" FontSize="42" Foreground="White" Background="Green"></Button>
+            <Button Name="GreenBase2" Grid.Column="10" Grid.Row="4" Content="2" FontSize="42" Foreground="White" Background="Green"></Button>
+            <Button Name="GreenBase3" Grid.Column="12" Grid.Row="4" Content="3" FontSize="42" Foreground="White" Background="Green"></Button>
 
-            <Button Name="RedBase1" Grid.Column="2" Grid.Row="10" Content="0" FontSize="42" Foreground="White" Background="Red"></Button>
-            <Button Name="RedBase2" Grid.Column="4" Grid.Row="10" Content="1" FontSize="42" Foreground="White" Background="Red"></Button>
-            <Button Name="RedBase3" Grid.Column="2" Grid.Row="13" Content="2" FontSize="42" Foreground="White" Background="Red"></Button>
-            <Button Name="RedBase4" Grid.Column="4" Grid.Row="13" Content="3" FontSize="42" Foreground="White" Background="Red" Click="Button_Click"></Button>
+            <Button Name="RedBase0" Grid.Column="2" Grid.Row="10" Content="0" FontSize="42" Foreground="White" Background="Red"></Button>
+            <Button Name="RedBase1" Grid.Column="4" Grid.Row="10" Content="1" FontSize="42" Foreground="White" Background="Red"></Button>
+            <Button Name="RedBase2" Grid.Column="2" Grid.Row="13" Content="2" FontSize="42" Foreground="White" Background="Red"></Button>
+            <Button Name="RedBase3" Grid.Column="4" Grid.Row="13" Content="3" FontSize="42" Foreground="White" Background="Red" Click="Button_Click"></Button>
 
-            <Button Name="YellowBase1" Grid.Column="10" Grid.Row="10" Content="0" FontSize="42" Foreground="Orange" Background="Yellow"></Button>
-            <Button Name="YellowBase2" Grid.Column="13" Grid.Row="10" Content="1" FontSize="42" Foreground="Orange" Background="Yellow"></Button>
-            <Button Name="YellowBase3" Grid.Column="10" Grid.Row="12" Content="2" FontSize="42" Foreground="Orange" Background="Yellow"></Button>
-            <Button Name="YellowBase4" Grid.Column="13" Grid.Row="12" Content="3" FontSize="42" Foreground="Orange" Background="Yellow" Click="Button_Click"></Button>
+            <Button Name="YellowBase0" Grid.Column="10" Grid.Row="10" Content="0" FontSize="42" Foreground="Orange" Background="Yellow"></Button>
+            <Button Name="YellowBase1" Grid.Column="13" Grid.Row="10" Content="1" FontSize="42" Foreground="Orange" Background="Yellow"></Button>
+            <Button Name="YellowBase2" Grid.Column="10" Grid.Row="12" Content="2" FontSize="42" Foreground="Orange" Background="Yellow"></Button>
+            <Button Name="YellowBase3" Grid.Column="13" Grid.Row="12" Content="3" FontSize="42" Foreground="Orange" Background="Yellow" Click="Button_Click"></Button>
 
             <!-- Normal Fields -->
             <Button Name="Field0" Grid.Column="0" Grid.Row="6" Content="0" FontSize="42" BorderBrush="Black"  Background="White" Click="Button_Click"></Button>
-            <Button Name="Field1" Grid.Column="1" Grid.Row="6" Content="1" FontSize="42" BorderBrush="Black" Foreground="White" Background="Blue" Click="Button_Click"></Button>
-            <Button Name="Field2" Grid.Column="2" Grid.Row="6" Content="2" FontSize="42" BorderBrush="Black"  Background="White" Click="Button_Click"></Button>
+            <Button Name="Field1" Grid.Column="1" Grid.Row="6" Content="1" FontSize="42" BorderBrush="Black" Foreground="White" Background="Blue" Click="MovePieceFromAndTo"></Button>
+            <Button Name="Field2" Grid.Column="2" Grid.Row="6" Content="2" FontSize="42" BorderBrush="Black"  Background="White" Click="MovePieceFromAndTo"></Button>
             <Button Name="Field3" Grid.Column="3" Grid.Row="6" Content="3" FontSize="42" BorderBrush="Black"  Background="White" Click="Button_Click"></Button>
             <Button Name="Field4" Grid.Column="4" Grid.Row="6" Content="4" FontSize="42" BorderBrush="Black"  Background="White" Click="Button_Click"></Button>
             <Button Name="Field5" Grid.Column="5" Grid.Row="6" Content="5" FontSize="42" BorderBrush="Black"  Background="White" Click="Button_Click"></Button>
@@ -167,7 +167,8 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"></ColumnDefinition>
                 <ColumnDefinition Width="*"></ColumnDefinition>
-                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="0.5*"></ColumnDefinition>
+                <ColumnDefinition Width="0.5*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Column="0" Grid.Row="0">
                 <Grid>
@@ -187,8 +188,9 @@
                 
             </StackPanel>
             <Button Name="btnStart" Grid.Column="0" Grid.Row="1" Content="Start" Margin="0,0.333,0.333,0" Click="StartGame"/>
-            <Button Name="btnExit" Grid.Column="0" Grid.Row="2" Content="Exit" Margin="0,0.333,0.333,0" Click="DieThrow_Click"/>
-            <Button Name="btnThrowDie" Grid.Column="2" Grid.RowSpan="3" Content="Throw die" Margin="0,0.333,0.333,0" Click="DieThrow_Click"/>
+            <Button Name="btnExit" Grid.Column="0" Grid.Row="2" Content="Exit" Margin="0,0.333,0.333,0" Click="ExitApplication"/>
+            <Button Name="btnThrowDie" Grid.Column="2" Grid.RowSpan="3" Content="Throw die" IsEnabled="False" Margin="0,0.333,0.333,0" Click="ThrowDie"/>
+            <Button Name="btnEndTurn" Grid.Column="3" Grid.RowSpan="3" Content="End turn"  IsEnabled="False" Margin="0,0.333,0.333,0" Click="EndTurn"/>
             <Label Name="lblInfo" Grid.Column="1" Grid.RowSpan="2" Grid.Row="1" Content="Information Here" FontSize="32" HorizontalContentAlignment="Center" Margin="0 0 0 0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
             <Label Name="lblPlayerTurn" Grid.Column="1" Grid.RowSpan="1" Grid.Row="0" Content="" FontSize="32" HorizontalContentAlignment="Center" Margin="0 0 0 0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
         </Grid>

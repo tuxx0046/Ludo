@@ -2,30 +2,37 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace LudoClassLibrary
 {
     public class GameManager
     {
-        #region Fields
-
-        #endregion
-
-        #region Properties
-        public bool PickedPieceToMove = false;
         public Player currentPlayer;
-        #endregion
+        public bool HasChosenPieceToMove = false;
+        public int activePlayersIndex = 0;
 
-        public int numberOfPlayers = 4;
-        
-        public int finishedPlayerCount = 0;
-        public event EventHandler dieRollResult;
+        public bool APieceHasBeenChosen { get; set; } = false;
+                
 
-        public Player bluePlayer = new HumanPlayer(LudoColor.Blue);
-        public Player greenPlayer = new HumanPlayer(LudoColor.Green);
-        public Player redPlayer = new HumanPlayer(LudoColor.Red);
-        public Player yellowPlayer = new HumanPlayer(LudoColor.Yellow);
+        /// <summary>
+        /// List of enabled AI players
+        /// </summary>
+        public List<LudoColor> enabledAIPlayers;
+
+        /// <summary>
+        /// List of active players. Can be human or AI. <br/>
+        /// Use this list when processing in game players.
+        /// </summary>
+        public List<Player> activePlayers;
+
+        // Prepare all the ludo objects for the game
+        public Player bluePlayer;
+        public Player greenPlayer;
+        public Player redPlayer;
+        public Player yellowPlayer;
 
         public List<Piece> bluePieces = new List<Piece>
         {
@@ -59,10 +66,45 @@ namespace LudoClassLibrary
             new Piece(LudoColor.Yellow, 3)
         };
 
-        public Board ludoBoard = new Board();
+        public Dictionary<Player, List<Piece>> playersAndPieces = new Dictionary<Player, List<Piece>>();
+            
         
 
+        public Board ludoBoard = new Board();
+        public UIManager ui = new UIManager();
+        
+        
+        public async void ThrowDie(object source, EventArgs e)
+        {
+            bool allPiecesAreOut = true;
+            playersAndPieces.Add(bluePlayer, bluePieces);
+            for (int i = 0; i < playersAndPieces[currentPlayer].Count - 1; i++)
+            {
+                if (playersAndPieces[currentPlayer][i].inBase == false)
+                {
+                    allPiecesAreOut = false;
+                }
+            }
+            if (allPiecesAreOut == false)
+            {
+                // allow three throws
+            }
+            // allow only one throw
+            else
+            {
 
+            }
+
+            foreach (Piece piece in playersAndPieces[bluePlayer])
+            {
+                await Task.Delay(1000);
+                ui.lblInformation.Content = piece.BasePositionId.ToString();
+            }
+            // if all pieces are still in base, allow three throws
+            ui.lblInformation.Content = Die.RandomDieValue.ToString();
+            ui.btnDie = source as Button;
+            //btnDie.IsEnabled = false;
+        }
 
         public void ChangeButtonContent(object source, object lbl, EventArgs e)
         {
@@ -72,33 +114,123 @@ namespace LudoClassLibrary
             //labl.Content = Die.RandomDieValue;
         }
 
-        public void RunGame(object source, object lblPlayerTurn, object lblInfo, EventArgs e)
+        /// <summary>
+        /// Sets current player to be next color from LudoColors. <br/>
+        /// Starts from blue, green, red, yellow and then loops.
+        /// </summary>
+        public void SetNextPlayer()
         {
-            Label info = lblInfo as Label;
-            info.Content = "Game started!";
-            Button start = source as Button;
-            start.IsEnabled = false;
-
-            bool isRunning = true;
-
-            while (isRunning)
+            int playersLeft = activePlayers.Count;
+            // If current player is last player in player list
+            if (currentPlayer == activePlayers[playersLeft - 1])
             {
-                Label test = lblPlayerTurn as Label;
-                test.Content = "Blue's turn";
-                isRunning = false;
+                // Set next player to first player in player list
+                activePlayersIndex = 0;
+                currentPlayer = activePlayers[activePlayersIndex];
+                
             }
-
+            else
+            {
+                // Next player is next player in player list
+                currentPlayer = activePlayers[activePlayersIndex];
+            }
+            activePlayersIndex++;
         }
 
-        public void TurnAIOnOff()
+        // Subscribed to event
+        public async void RunGame(object[] source, object lblPlayerTurn, object lblInfo, object die, object endTurn, EventArgs e)
         {
-
+            // Enable btnDie and btnEndturn
+            // labels need to show information
+            AddPlayersToGame();
+            StartNextTurn();
+            await Task.Delay(1000);
         }
 
-        public void ShowCurrentPlayer(Label lblPlayerTurn)
+        
+
+        public void StartNextTurn()
         {
-            lblPlayerTurn.Content = currentPlayer.color.ToString() + "'s turn";
+            SetNextPlayer();
+            ui.ShowCurrentPlayer(currentPlayer.color.ToString());
+            ui.btnDie.IsEnabled = true;
+            ui.lblInformation.Content = "Please throw die";
         }
+
+        /*
+         * Let player throw die
+         * update labels
+         * logic to figure out which pieces can be moved
+         * Let player choose piece to move
+         * Logic to let player know if piece can be moved
+         * Event end turn - logic 
+         * Event startnextturn
+         */
+
+        // Subscribed to event
+        /// <summary>
+        /// Registers into a list the AI players to be instantiated
+        /// </summary>
+        /// <param name="enabledAIPlayers"></param>
+        public void RegisterEnabledAIPlayers(List<LudoColor> enabledAIPlayers)
+        {
+            this.enabledAIPlayers = enabledAIPlayers;
+        }
+
+        /// <summary>
+        /// Adds players to activePlayers list. If AI is enabled AI will be added instead of HumanPlayer
+        /// </summary>
+        public void AddPlayersToGame()
+        {
+            // Determine if players are human or AI
+            bluePlayer = enabledAIPlayers.Contains(LudoColor.Blue) == true ? bluePlayer = new AIPlayer(LudoColor.Blue) 
+                : bluePlayer = new HumanPlayer(LudoColor.Blue);
+
+            greenPlayer = enabledAIPlayers.Contains(LudoColor.Green) == true ? greenPlayer = new AIPlayer(LudoColor.Green)
+                : greenPlayer = new HumanPlayer(LudoColor.Green);
+
+            redPlayer = enabledAIPlayers.Contains(LudoColor.Red) == true ? redPlayer = new AIPlayer(LudoColor.Red)
+                : redPlayer = new HumanPlayer(LudoColor.Red);
+
+            yellowPlayer = enabledAIPlayers.Contains(LudoColor.Yellow) == true ? yellowPlayer = new AIPlayer(LudoColor.Yellow)
+                : yellowPlayer = new HumanPlayer(LudoColor.Yellow);
+
+            // Add the players to active players list
+            activePlayers = new List<Player> { bluePlayer, greenPlayer, redPlayer, yellowPlayer };
+        }
+
+        /****** Change colors on buttons *************/
+        public void RegisterMove(object source, object lblinfo, EventArgs e)
+        {
+            if (APieceHasBeenChosen == true)
+            {
+                MovePieceToField(source, e);
+            }
+            else
+            {
+                MovePieceFromField(source, e);
+            }
+        }
+
+        public void MovePieceFromField(object source, EventArgs e)
+        {
+            Button fieldWithPiecePicked = source as Button;
+            if (fieldWithPiecePicked.Background  == Brushes.Blue)// && currentPlayer.color == LudoColor.Blue)
+            {
+                APieceHasBeenChosen = true;
+                ui.btnFieldToMoveFrom = fieldWithPiecePicked;
+            }
+        }
+
+        public void MovePieceToField(object source, EventArgs e)
+        {
+            Button targetFieldButton = source as Button;
+            targetFieldButton.Background = Brushes.Blue;
+            ui.btnFieldToMoveFrom.Background = Brushes.White;
+            APieceHasBeenChosen = false;
+        }
+
+        
     }
 }
 
