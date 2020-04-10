@@ -19,7 +19,7 @@ namespace LudoClassLibrary
         /// <summary>
         /// Use to determine color and number of occupants. More than 0, means it is occupied
         /// </summary>
-        public List<Piece> occuppants = new List<Piece>();
+        public List<Piece> occupants = new List<Piece>();
         #endregion
 
         #region Constructors
@@ -54,7 +54,7 @@ namespace LudoClassLibrary
         /// <returns>Number of occupants</returns>
         public int CountOccupants()
         {
-            int numberOfOccupants = occuppants.Count;
+            int numberOfOccupants = occupants.Count;
             return numberOfOccupants;
         }
 
@@ -62,35 +62,37 @@ namespace LudoClassLibrary
         /// Add an occupant to the field. Will only add if incoming LudoColor matches already existing occupants'.
         /// </summary>
         /// <param name="incoming">Incoming Piece</param>
-        public void GetOccupant(Piece incoming)
+        public void AddOccupant(Piece incoming)
         {
-            if (occuppants.Count > 0 && occuppants[0].color == incoming.color)
+            if (occupants.Count > 0 && occupants[0].color == incoming.color)
             {
-                occuppants.Add(incoming);
+                occupants.Add(incoming);
             }
-            else if (occuppants.Count == 0)
+            else if (occupants.Count == 0)
             {
-                occuppants.Add(incoming);
+                occupants.Add(incoming);
             }
         }
 
         /// <summary>
-        /// Remove a piece from the field. Will only remove if the player's LudoColor matches the occupants'. <br />
-        /// Returns false if LudoColor doesn't match.
+        /// Remove a piece from the field. <br />
         /// </summary>
-        public bool RemoveOccupant(Player player)
+        public void RemoveOccupant()
         {
-            if (occuppants.Count > 0 && occuppants[0].color == player.color)
+            if (occupants.Count > 0)
             {
-                occuppants.RemoveAt(0);
-                return true;
-            }
-            else
-            {
-                return false;
+                // RemoveAt will renumber the remaining items
+                occupants.RemoveAt(0);
             }
         }
+
+        public LudoColor GetOccupantColor()
+        {
+           return occupants[0].color;
+        }
         #endregion
+
+
 
     }
 }

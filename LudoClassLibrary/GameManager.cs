@@ -13,6 +13,7 @@ namespace LudoClassLibrary
         public Player currentPlayer;
         public bool HasChosenPieceToMove = false;
         public int activePlayersIndex = 0;
+        public int dieValue;
 
         public bool APieceHasBeenChosen { get; set; } = false;
                 
@@ -66,59 +67,93 @@ namespace LudoClassLibrary
             new Piece(LudoColor.Yellow, 3)
         };
 
-        public Dictionary<Player, List<Piece>> playersAndPieces = new Dictionary<Player, List<Piece>>();
+        public Dictionary<Player, List<Piece>> playerPiecePairs = new Dictionary<Player, List<Piece>>();
             
-        
 
         public Board ludoBoard = new Board();
         public UIManager ui = new UIManager();
-        
-        
-        public async void ThrowDie(object source, EventArgs e)
+
+        #region Methods
+        // Subscribed to event
+        /// <summary>
+        /// Adds players to game and starts turn
+        /// </summary>
+        public async void RunGame()
         {
-            bool allPiecesAreOut = true;
-            playersAndPieces.Add(bluePlayer, bluePieces);
-            for (int i = 0; i < playersAndPieces[currentPlayer].Count - 1; i++)
-            {
-                if (playersAndPieces[currentPlayer][i].inBase == false)
-                {
-                    allPiecesAreOut = false;
-                }
-            }
-            if (allPiecesAreOut == false)
-            {
-                // allow three throws
-            }
-            // allow only one throw
-            else
-            {
-
-            }
-
-            foreach (Piece piece in playersAndPieces[bluePlayer])
-            {
-                await Task.Delay(1000);
-                ui.lblInformation.Content = piece.BasePositionId.ToString();
-            }
-            // if all pieces are still in base, allow three throws
-            ui.lblInformation.Content = Die.RandomDieValue.ToString();
-            ui.btnDie = source as Button;
-            //btnDie.IsEnabled = false;
+            AddPlayersToGame();
+            playerPiecePairs.Add(bluePlayer, bluePieces);
+            playerPiecePairs.Add(greenPlayer, greenPieces);
+            ui.btnEndTurn.IsEnabled = true;
+            StartNextTurn();
+            await Task.Delay(1000);
         }
 
-        public void ChangeButtonContent(object source, object lbl, EventArgs e)
+        /// <summary>
+        /// Sets next currentPlayer, activaces die and updates information label
+        /// </summary>
+        public void StartNextTurn()
         {
-            Button field = source as Button;
-            Label labl = lbl as Label;
-            //field.Content = "TEST";
-            //labl.Content = Die.RandomDieValue;
+            GoToNextPlayer();
+            ui.ShowCurrentPlayer(currentPlayer.color.ToString());
+            ui.btnDie.IsEnabled = true;
+            ui.UpdateInformationLabel("Please throw die");
+
+        }
+
+        /// <summary>
+        /// Gets called when button click event occurs.<br/>
+        /// Saves current Die value to variable, and checks if all pieces are in base to allow at most 3 throws.
+        /// </summary>
+        public void ThrowDie()
+        {
+            // Save value of Die
+            dieValue = Die.RandomDieValue;
+            bool allPiecesAreInBase = true;
+            // Check if all pieces are in base, to determine if player gets to roll die 3 times or gets of 6 whichever comes first            
+            for (int i = 0; i < playerPiecePairs[currentPlayer].Count - 1; i++)
+            {
+                if (playerPiecePairs[currentPlayer][i].inBase == false)
+                {
+                    allPiecesAreInBase = false;
+                    break;
+                }
+            }
+            // When at least one piece is out of base or rolls 6
+            if (allPiecesAreInBase == false || dieValue == 6)
+            {
+                // Reset times thrown
+                Die.TimesThrown = 0;
+                // Disable button because at least one piece is moveable
+                ui.btnDie.IsEnabled = false;
+                // Display value of die
+                ui.UpdateInformationLabel("Rolled " + dieValue.ToString());
+
+            }
+            // When all in base and thrown 1-2 times
+            else if (Die.TimesThrown < 2)
+            {
+                ui.UpdateInformationLabel("Rolled " + dieValue.ToString());
+                Die.TimesThrown++;
+            }
+            // All in base, and thrown three times
+            else
+            {
+                ui.UpdateInformationLabel("Rolled " + dieValue.ToString());
+                Die.TimesThrown = 0;
+                ui.btnDie.IsEnabled = false;
+            }
+        }
+
+        public void EndTurn()
+        {
+            
         }
 
         /// <summary>
         /// Sets current player to be next color from LudoColors. <br/>
         /// Starts from blue, green, red, yellow and then loops.
         /// </summary>
-        public void SetNextPlayer()
+        public void GoToNextPlayer()
         {
             int playersLeft = activePlayers.Count;
             // If current player is last player in player list
@@ -137,25 +172,11 @@ namespace LudoClassLibrary
             activePlayersIndex++;
         }
 
-        // Subscribed to event
-        public async void RunGame(object[] source, object lblPlayerTurn, object lblInfo, object die, object endTurn, EventArgs e)
-        {
-            // Enable btnDie and btnEndturn
-            // labels need to show information
-            AddPlayersToGame();
-            StartNextTurn();
-            await Task.Delay(1000);
-        }
+        
 
         
 
-        public void StartNextTurn()
-        {
-            SetNextPlayer();
-            ui.ShowCurrentPlayer(currentPlayer.color.ToString());
-            ui.btnDie.IsEnabled = true;
-            ui.lblInformation.Content = "Please throw die";
-        }
+        
 
         /*
          * Let player throw die
@@ -166,6 +187,8 @@ namespace LudoClassLibrary
          * Event end turn - logic 
          * Event startnextturn
          */
+
+            
 
         // Subscribed to event
         /// <summary>
@@ -199,7 +222,191 @@ namespace LudoClassLibrary
             activePlayers = new List<Player> { bluePlayer, greenPlayer, redPlayer, yellowPlayer };
         }
 
-        /****** Change colors on buttons *************/
+        
+        public void ChoosePieceToMove(object fieldPiece, EventArgs e)
+        {
+            Button chosenField = fieldPiece as Button;
+
+            // Check if choice is valid
+            bool isValidField = ValidateIfChosenBtnFieldIsPartOfRoute(chosenField);
+
+            if (isValidField == true)
+            {
+                // Is the chosen field to move Piece from part of base?
+                bool isBaseField = ui.btnColorBases[currentPlayer.color].Contains(chosenField) ? true : false;
+                // Find Position/index of field. Base(0-3) or Route(0-57)
+                int positionOfPiece = isBaseField ? ui.btnColorBases[currentPlayer.color].IndexOf(chosenField)
+                    : ui.btnColorRoutes[currentPlayer.color].IndexOf(chosenField);
+                
+                if (isBaseField == true && dieValue == 6)
+                {
+                    
+                    MovePieceFromBaseToRoute(positionOfPiece, chosenField);
+                }
+                else if (isBaseField == true && dieValue != 6)
+                {
+                    // Trying to move piece from base but did not roll 6
+                    MessageNotAValidMove();
+                    
+                }
+                // Move from field to field
+                else
+                {
+                    // Make sure not to pass ally
+                    // Remove from old field
+                    // Check for opponents
+                    // Update field
+
+
+
+                    // end turn
+                }
+
+            }
+            else
+            {
+                MessageNotAValidMove();
+            }
+        }
+
+        /// <summary>
+        /// Moves piece from base position to route start position
+        /// </summary>
+        /// <param name="positionOfPiece"></param>
+        /// <param name="chosenField"></param>
+        public void MovePieceFromBaseToRoute(int positionOfPiece, Button chosenField)
+        {
+            // Base position
+            Piece pieceToMove = playerPiecePairs[currentPlayer][positionOfPiece];
+            // Check if there is actually a piece standing on the basefield
+            if (pieceToMove.inBase == true)
+            {
+                // Allow move to first field on route (index 0)
+                // First field on route does not need colorchange
+                pieceToMove.inBase = false;
+                pieceToMove.RoutePosition = 0;
+                ludoBoard.AddPieceToFieldOnRoute(pieceToMove, pieceToMove.RoutePosition);
+                // Check to see if the target position is free for the taking
+                bool canMovePiece = CanTakeField(pieceToMove.RoutePosition, pieceToMove);
+                if (canMovePiece == true)
+                {
+                    // Change color on button base field to show that current Piece has left it
+                    ui.ChangeColor(currentPlayer.color, chosenField);
+
+                    // Update occupantcount on target field (UI part)
+                    ui.ChangeNumberOfOccuppants(ludoBoard.routes[currentPlayer.color][pieceToMove.RoutePosition].CountOccupants(), chosenField);
+                }
+                else if (canMovePiece == false)
+                {
+                    MessageYouGotHitBack();
+                }
+                
+                // End turn
+            }
+            else
+            {
+                MessageNotAValidMove();
+            }
+        }
+
+        public void MovePieceFromFieldToField()
+        {
+            // dievalue + current position
+        }
+
+        /// <summary>
+        /// Determines whether or not current players piece will hit opponent home or the opposite.
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="pieceToMove"></param>
+        /// <returns></returns>
+        private bool CanTakeField(int index, Piece pieceToMove)
+        {
+            Field targetField = ludoBoard.routes[currentPlayer.color][index];
+            
+            // Hit opponent back to base if only one
+            if (targetField.GetOccupantColor() != currentPlayer.color && targetField.CountOccupants() == 1)
+            {
+                // Set opponent status to in base
+                targetField.occupants[0].inBase = true;
+                // Put opponent color back in opponent base (UI part)
+                int opponentPieceId = targetField.occupants[0].BasePositionId;
+                LudoColor opponentColor = targetField.occupants[0].color;
+                ui.ChangeColor(opponentColor, ui.btnColorBases[opponentColor][opponentPieceId]);
+                // Remove opponent from ludoboard field
+                targetField.RemoveOccupant();
+                // Put currentPlayers piece in ludoboard field
+                targetField.AddOccupant(pieceToMove);
+
+                return true;
+            }
+            // Get hit back by opponent
+            else if (targetField.GetOccupantColor() != currentPlayer.color && targetField.CountOccupants() > 1)
+            {
+                pieceToMove.inBase = true;
+
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        private bool ValidateIfChosenBtnFieldIsPartOfRoute(Button chosenField)
+        {
+            // Check if clicked field is part of the base or route of the current player
+            if (ui.btnColorBases[currentPlayer.color].Contains(chosenField) || ui.btnColorRoutes[currentPlayer.color].Contains(chosenField))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Gives a 'not valid move' message in information label
+        /// </summary>
+        private async void MessageNotAValidMove()
+        {
+            ui.UpdateInformationLabel("");
+            await Task.Delay(500);
+            ui.UpdateInformationLabel("Not a valid move!");
+        }
+
+        private void MessageYouGotHitBack()
+        {
+            ui.UpdateInformationLabel("You got hit back to base!");
+        }
+
+        private void ValidateMoveInBackEnd(int routeIndex)
+        {
+            Field[] route = GetCorrespondingColoredRoute(currentPlayer.color);
+            // check to see if there is a piece on field
+        }
+
+        private Field[] GetCorrespondingColoredRoute(LudoColor color)
+        {
+            if (color == LudoColor.Blue)
+            {
+                return ludoBoard.blueRoute;
+            }
+            else if (color == LudoColor.Green)
+            {
+                return ludoBoard.greenRoute;
+            }
+            else if (color == LudoColor.Red)
+            {
+                return ludoBoard.redRoute;
+            }
+            else
+            {
+                return ludoBoard.yellowRoute;
+            }
+        }
+
         public void RegisterMove(object source, object lblinfo, EventArgs e)
         {
             if (APieceHasBeenChosen == true)
@@ -229,12 +436,13 @@ namespace LudoClassLibrary
             ui.btnFieldToMoveFrom.Background = Brushes.White;
             APieceHasBeenChosen = false;
         }
+        #endregion
 
-        
     }
 }
 
 
+//ui.btnEndTurn.RaiseEvent(new System.Windows.RoutedEventArgs(Button.ClickEvent));
 
 /*
 class Program

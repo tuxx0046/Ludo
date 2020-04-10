@@ -21,26 +21,21 @@ namespace Ludo
     /// </summary>
     public partial class MainWindow : Window
     {
-        public delegate void InGameHandler(object source, object lbl, EventArgs e);
-        public delegate void StartGameHandler(object[] source, object lblPlayerTurn, object lblInfo, object btnDie, object btnEndTurn, EventArgs e);
+        public delegate void StartGameHandler();
         public delegate void AIHandler(List<LudoColor> AIPlayersEnabled);
-        public delegate void ThrowDieHandler(object source, EventArgs e);
+        public delegate void ThrowDieHandler();
         public delegate void EndTurnHandler();
         public delegate void ColoredRoutesHandler(object blueRoute, object greenRoute, object redRoute, object yellowRoute);
+        public delegate void ColoredBasesHandler(object blueBase, object greenBase, object redBase, object yellowBase);
         public delegate void UIButtonsAndLabelsHandler(object die, object endTurn, object infolabel, object playerTurnInfo);
-        public event InGameHandler InGameEvent;
         public event StartGameHandler StartGameEvent;
         public event AIHandler AIEnableEvent;
         public event ThrowDieHandler ThrowDieEvent;
         public event EndTurnHandler EndTurnEvent;
         public event ColoredRoutesHandler PrepareColoredRoutes;
         public event UIButtonsAndLabelsHandler PrepareBtnsAndLabels;
-
-        public object[] allFieldsAndBases;
-        public object[] blueRouteUI;
-        public object[] greenRouteUI;
-        public object[] redRouteUI;
-        public object[] yellowRouteUI;
+        public event ColoredBasesHandler PrepareColoredBases;
+        
 
         public MainWindow()
         {
@@ -48,12 +43,11 @@ namespace Ludo
             GameManager gm = new GameManager();
             gm.ludoBoard.InitWholeBoardAndCreateRoutes();
             StartGameEvent += gm.RunGame;
-            InGameEvent += gm.ChangeButtonContent;
             AIEnableEvent += gm.RegisterEnabledAIPlayers;
-            InGameEvent += gm.RegisterMove;
             ThrowDieEvent += gm.ThrowDie;
             EndTurnEvent += gm.StartNextTurn;
             PrepareColoredRoutes += gm.ui.DefineBtnRoutes;
+            PrepareColoredBases += gm.ui.DefineBtnBases;
             PrepareBtnsAndLabels += gm.ui.InitializeUILabelsAndActionBtns;
             
         }
@@ -66,7 +60,7 @@ namespace Ludo
 
         private void ThrowDie(object sender, RoutedEventArgs e)
         {
-            ThrowDieEvent?.Invoke(sender, e);
+            ThrowDieEvent?.Invoke();
             
         }
 
@@ -75,7 +69,7 @@ namespace Ludo
             EndTurnEvent?.Invoke();
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void ChoosePieceToMove(object sender, RoutedEventArgs e)
         {
 
         }
@@ -87,10 +81,11 @@ namespace Ludo
         /// <param name="e"></param>
         private void StartGame(object sender, RoutedEventArgs e)
         {
+            btnStart.IsEnabled = false;
             CheckEnabledAI();
-            CreateRoutes();
+            CreateRoutesAndBases();
             SendButtonsAndLabelsToUIManager();
-            StartGameEvent?.Invoke(allFieldsAndBases, lblPlayerTurn, lblInfo, btnThrowDie, btnEndTurn, e);
+            StartGameEvent?.Invoke();
         }
 
         /// <summary>
@@ -140,7 +135,7 @@ namespace Ludo
         /// Initializes button routes and sends them back to UIManager.<br/>
         /// Raises event.
         /// </summary>
-        private void CreateRoutes()
+        private void CreateRoutesAndBases()
         {
             Button[] blueRoute = new Button[57]
             {
@@ -382,257 +377,45 @@ namespace Ludo
                 YellowField4,
                 YellowField5
             };
+            Button[] blueBase = new Button[4]
+            {
+                BlueBase0,
+                BlueBase1,
+                BlueBase2,
+                BlueBase3
+            };
+            Button[] greenBase = new Button[4]
+            {
+                GreenBase0,
+                GreenBase1,
+                GreenBase2,
+                GreenBase3
+            };
+            Button[] redBase = new Button[4]
+            {
+                RedBase0,
+                RedBase1,
+                RedBase2,
+                RedBase3
+            };
+            Button[] yellowBase = new Button[4]
+            {
+                YellowBase0,
+                YellowBase1,
+                YellowBase2,
+                YellowBase3
+            };
             PrepareColoredRoutes?.Invoke(blueRoute, greenRoute, redRoute, yellowRoute);
+            PrepareColoredBases?.Invoke(blueBase, greenBase, redBase, yellowBase);
         }
         
         /// <summary>
-        /// Send back XAML objects to UIManager.<br/>
+        /// Send back UI objects (except the fields that the pieces use) to UIManager.<br/>
         /// Raises event.
         /// </summary>
         private void SendButtonsAndLabelsToUIManager()
         {
-            PrepareBtnsAndLabels?.Invoke(btnEndTurn, btnThrowDie, lblInfo, lblPlayerTurn);
+            PrepareBtnsAndLabels?.Invoke(btnThrowDie, btnEndTurn, lblInfo, lblPlayerTurn);
         }
-
     }
 }
-/*
- * 
- * 
-// Blueroute
-Field1,
-Field2,
-Field3,
-Field4,
-Field5,
-Field6,
-Field7,
-Field8,
-Field9,
-Field10,
-Field11,
-Field12,
-Field13,
-Field14,
-Field15,
-Field16,
-Field17,
-Field18,
-Field19,
-Field20,
-Field21,
-Field22,
-Field23,
-Field24,
-Field25,
-Field26,
-Field27,
-Field28,
-Field29,
-Field30,
-Field31,
-Field32,
-Field33,
-Field34,
-Field35,
-Field36,
-Field37,
-Field38,
-Field39,
-Field40,
-Field41,
-Field42,
-Field43,
-Field44,
-Field45,
-Field46,
-Field47,
-Field48,
-Field49,
-Field50,
-Field51,
-BlueField0,
-BlueField1,
-BlueField2,
-BlueField3,
-BlueField4,
-BlueField5
-
-// greenroute
-Field14,
-Field15,
-Field16,
-Field17,
-Field18,
-Field19,
-Field20,
-Field21,
-Field22,
-Field23,
-Field24,
-Field25,
-Field26,
-Field27,
-Field28,
-Field29,
-Field30,
-Field31,
-Field32,
-Field33,
-Field34,
-Field35,
-Field36,
-Field37,
-Field38,
-Field39,
-Field40,
-Field41,
-Field42,
-Field43,
-Field44,
-Field45,
-Field46,
-Field47,
-Field48,
-Field49,
-Field50,
-Field51,
-Field0,
-Field1,
-Field2,
-Field3,
-Field4,
-Field5,
-Field6,
-Field7,
-Field8,
-Field9,
-Field10,
-Field11,
-Field12,
-GreenField0,
-GreenField1,
-GreenField2,
-GreenField3,
-GreenField4,
-GreenField5
-
-
-// Redroute
-Field40,
-Field41,
-Field42,
-Field43,
-Field44,
-Field45,
-Field46,
-Field47,
-Field48,
-Field49,
-Field50,
-Field51,
-Field0,
-Field1,
-Field2,
-Field3,
-Field4,
-Field5,
-Field6,
-Field7,
-Field8,
-Field9,
-Field10,
-Field11,
-Field12,
-Field13,
-Field14,
-Field15,
-Field16,
-Field17,
-Field18,
-Field19,
-Field20,
-Field21,
-Field22,
-Field23,
-Field24,
-Field25,
-Field26,
-Field27,
-Field28,
-Field29,
-Field30,
-Field31,
-Field32,
-Field33,
-Field34,
-Field35,
-Field36,
-Field37,
-Field38,
-RedField0,
-RedField1,
-RedField2,
-RedField3,
-RedField4,
-RedField5,
-
-// yellowroute
-Field27,
-Field28,
-Field29,
-Field30,
-Field31,
-Field32,
-Field33,
-Field34,
-Field35,
-Field36,
-Field37,
-Field38,
-Field39,
-Field40,
-Field41,
-Field42,
-Field43,
-Field44,
-Field45,
-Field46,
-Field47,
-Field48,
-Field49,
-Field50,
-Field51,
-Field0,
-Field1,
-Field2,
-Field3,
-Field4,
-Field5,
-Field6,
-Field7,
-Field8,
-Field9,
-Field10,
-Field11,
-Field12,
-Field13,
-Field14,
-Field15,
-Field16,
-Field17,
-Field18,
-Field19,
-Field20,
-Field21,
-Field22,
-Field23,
-Field24,
-Field25,
-YellowField0,
-YellowField1,
-YellowField2,
-YellowField3,
-YellowField4,
-YellowField5,
-*/

@@ -24,6 +24,8 @@ namespace LudoClassLibrary
         public Field[] greenBase;
         public Field[] redBase;
         public Field[] yellowBase;
+
+        public Dictionary<LudoColor, Field[]> routes;
         #endregion
 
         #region Methods
@@ -354,7 +356,38 @@ namespace LudoClassLibrary
             #endregion
             #endregion
 
+            routes.Add(LudoColor.Blue, blueRoute);
+            routes.Add(LudoColor.Green, greenRoute);
+            routes.Add(LudoColor.Red, redRoute);
+            routes.Add(LudoColor.Yellow, yellowRoute);
+
         }
+
+        /// <summary>
+        /// Adds a piece to a field on route
+        /// </summary>
+        /// <param name="piece"></param>
+        /// <param name="index"></param>
+        public void AddPieceToFieldOnRoute(Piece piece, int index)
+        {
+            if (piece.color == LudoColor.Blue)
+            {
+                blueRoute[index].AddOccupant(piece);
+            }
+            else if (piece.color == LudoColor.Green)
+            {
+                greenRoute[index].AddOccupant(piece);
+            }
+            else if (piece.color == LudoColor.Red)
+            {
+                redRoute[index].AddOccupant(piece);
+            }
+            else
+            {
+                yellowRoute[index].AddOccupant(piece);
+            }
+        }
+
         #endregion
         /*
         public void MovePiece(Field[] route, Piece chosenpiecetomove, int dicenumber)
