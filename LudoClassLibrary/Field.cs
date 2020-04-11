@@ -64,14 +64,7 @@ namespace LudoClassLibrary
         /// <param name="incoming">Incoming Piece</param>
         public void AddOccupant(Piece incoming)
         {
-            if (occupants.Count > 0 && occupants[0].color == incoming.color)
-            {
-                occupants.Add(incoming);
-            }
-            else if (occupants.Count == 0)
-            {
-                occupants.Add(incoming);
-            }
+            occupants.Add(incoming);
         }
 
         /// <summary>
@@ -88,7 +81,7 @@ namespace LudoClassLibrary
 
         public LudoColor GetOccupantColor()
         {
-           return occupants[0].color;
+            return occupants[0].color;
         }
         #endregion
 

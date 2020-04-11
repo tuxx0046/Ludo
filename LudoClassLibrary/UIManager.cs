@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Media;
 
@@ -64,35 +65,42 @@ namespace LudoClassLibrary
 
         /// <summary>
         /// Changes the color of the button field.
-        /// Changes to white if ludocolored, or ludocolored if white
+        /// If base, changes to white if ludocolored, or ludocolored if white
         /// </summary>
         /// <param name="color"></param>
         /// <param name="field"></param>
         public void ChangeColor(LudoColor color, Button field)
         {
-            if (field.Background == Brushes.White)
+            if (btnColorBases[color].Contains(field))
             {
-                if (color == LudoColor.Blue)
+                if (field.Background == Brushes.White)
                 {
-                    field.Background = Brushes.Blue;
+                    ChangeColorToPlayerColor(color, field);
                 }
-                else if (color == LudoColor.Green)
+                else
                 {
-                    field.Background = Brushes.Green;
-                }
-                else if (color == LudoColor.Red)
-                {
-                    field.Background = Brushes.Red;
-                }
-                else if (color == LudoColor.Yellow)
-                {
-                    field.Background = Brushes.Yellow;
+                    field.Background = Brushes.White;
                 }
             }
-            else
+            else if (btnColorRoutes[color].Contains(field))
             {
-                field.Background = Brushes.White;
+                switch (field)
+                {
+                    case Button index0 when field == btnColorRoutes[color][0]:
+                        ChangeColorToPlayerColor(color, field);
+                        break;
+                    case Button index56 when field == btnColorRoutes[color][56]:
+                    case Button index55 when field == btnColorRoutes[color][55]:
+                    case Button index54 when field == btnColorRoutes[color][54]:
+                    case Button index53 when field == btnColorRoutes[color][53]:
+                    case Button index52 when field == btnColorRoutes[color][52]:
+                        break;
+                    default:
+                        ChangeColorToPlayerColor(color, field);
+                        break;
+                }
             }
+            
         }
 
         /// <summary>
@@ -111,8 +119,165 @@ namespace LudoClassLibrary
                 field.Content = numberOfOccuppants.ToString();
             }
         }
+
+        private void ChangeColorToPlayerColor(LudoColor color, Button field)
+        {
+            if (color == LudoColor.Blue)
+            {
+                field.Background = Brushes.Blue;
+            }
+            else if (color == LudoColor.Green)
+            {
+                field.Background = Brushes.Green;
+            }
+            else if (color == LudoColor.Red)
+            {
+                field.Background = Brushes.Red;
+            }
+            else if (color == LudoColor.Yellow)
+            {
+                field.Background = Brushes.Yellow;
+            }
+    
+        }
+
+        /// <summary>
+        /// Changes field back to its starting color. Use on route fields.
+        /// </summary>
+        /// <param name="field"></param>
+        public void ChangeColorToOriginalColor(Button field)
+        {
+            if (field == btnColorRoutes[LudoColor.Blue][0] || 
+                field == btnColorRoutes[LudoColor.Blue][51] || 
+                field == btnColorRoutes[LudoColor.Blue][52] || 
+                field == btnColorRoutes[LudoColor.Blue][53] ||
+                field == btnColorRoutes[LudoColor.Blue][54] ||
+                field == btnColorRoutes[LudoColor.Blue][55])
+            {
+                field.Background = Brushes.Blue;
+            }
+            else if (field == btnColorRoutes[LudoColor.Green][0] ||
+                     field == btnColorRoutes[LudoColor.Green][51] ||
+                     field == btnColorRoutes[LudoColor.Green][52] ||
+                     field == btnColorRoutes[LudoColor.Green][53] ||
+                     field == btnColorRoutes[LudoColor.Green][54] ||
+                     field == btnColorRoutes[LudoColor.Green][55])
+            {
+                field.Background = Brushes.Green;
+            }
+            else if (field == btnColorRoutes[LudoColor.Red][0] ||
+                     field == btnColorRoutes[LudoColor.Red][51] ||
+                     field == btnColorRoutes[LudoColor.Red][52] ||
+                     field == btnColorRoutes[LudoColor.Red][53] ||
+                     field == btnColorRoutes[LudoColor.Red][54] ||
+                     field == btnColorRoutes[LudoColor.Red][55])
+            {
+                field.Background = Brushes.Red;
+            }
+            else if (field == btnColorRoutes[LudoColor.Yellow][0] ||
+                     field == btnColorRoutes[LudoColor.Yellow][51] ||
+                     field == btnColorRoutes[LudoColor.Yellow][52] ||
+                     field == btnColorRoutes[LudoColor.Yellow][53] ||
+                     field == btnColorRoutes[LudoColor.Yellow][54] ||
+                     field == btnColorRoutes[LudoColor.Yellow][55])
+            {
+                field.Background = Brushes.Yellow;
+            }
+            else
+            {
+                field.Background = Brushes.White;
+            }
+        }
+
+        public int GetIndexOfField(LudoColor color, Button chosenField)
+        {
+            int index;
+
+            if (btnColorBases[color].Contains(chosenField))
+            {
+                index = btnColorBases[color].IndexOf(chosenField);
+            }
+            else
+            {
+                index = btnColorRoutes[color].IndexOf(chosenField);
+            }
+            
+            return index;
+        }
+        
+        //public void DisableAllRoutesAndBases()
+        //{
+        //    foreach (Button button in btnColorBases[LudoColor.Blue])
+        //    {
+        //        button.IsEnabled = false;
+        //    }
+        //    foreach (Button button in btnColorBases[LudoColor.Green])
+        //    {
+        //        button.IsEnabled = false;
+        //    }
+        //    foreach (Button button in btnColorBases[LudoColor.Red])
+        //    {
+        //        button.IsEnabled = false;
+        //    }
+        //    foreach (Button button in btnColorBases[LudoColor.Yellow])
+        //    {
+        //        button.IsEnabled = false;
+        //    }
+
+        //    foreach (Button button in btnColorRoutes[LudoColor.Blue])
+        //    {
+        //        button.IsEnabled = false;
+        //    }
+        //    foreach (Button button in btnColorRoutes[LudoColor.Green])
+        //    {
+        //        button.IsEnabled = false;
+        //    }
+        //    foreach (Button button in btnColorRoutes[LudoColor.Red])
+        //    {
+        //        button.IsEnabled = false;
+        //    }
+        //    foreach (Button button in btnColorRoutes[LudoColor.Yellow])
+        //    {
+        //        button.IsEnabled = false;
+        //    }
+        //}
+
+        //public void EnableAllRoutesAndBases()
+        //{
+        //    foreach (Button button in btnColorBases[LudoColor.Blue])
+        //    {
+        //        button.IsEnabled = true;
+        //    }
+        //    foreach (Button button in btnColorBases[LudoColor.Green])
+        //    {
+        //        button.IsEnabled = true;
+        //    }
+        //    foreach (Button button in btnColorBases[LudoColor.Red])
+        //    {
+        //        button.IsEnabled = true;
+        //    }
+        //    foreach (Button button in btnColorBases[LudoColor.Yellow])
+        //    {
+        //        button.IsEnabled = true;
+        //    }
+
+        //    foreach (Button button in btnColorRoutes[LudoColor.Blue])
+        //    {
+        //        button.IsEnabled = true;
+        //    }
+        //    foreach (Button button in btnColorRoutes[LudoColor.Green])
+        //    {
+        //        button.IsEnabled = true;
+        //    }
+        //    foreach (Button button in btnColorRoutes[LudoColor.Red])
+        //    {
+        //        button.IsEnabled = true;
+        //    }
+        //    foreach (Button button in btnColorRoutes[LudoColor.Yellow])
+        //    {
+        //        button.IsEnabled = true;
+        //    }
+        //}
+        
     }
 }
-/*
- * 
- * FIX PROBLEM WITH FIRST BUTTON ON ROUTE COLOR WHEN OPPONENTS ARE ON*/

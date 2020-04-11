@@ -25,7 +25,7 @@ namespace LudoClassLibrary
         public Field[] redBase;
         public Field[] yellowBase;
 
-        public Dictionary<LudoColor, Field[]> routes;
+        public Dictionary<LudoColor, Field[]> routes = new Dictionary<LudoColor, Field[]>();
         #endregion
 
         #region Methods

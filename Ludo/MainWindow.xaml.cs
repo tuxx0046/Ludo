@@ -35,6 +35,7 @@ namespace Ludo
         public event ColoredRoutesHandler PrepareColoredRoutes;
         public event UIButtonsAndLabelsHandler PrepareBtnsAndLabels;
         public event ColoredBasesHandler PrepareColoredBases;
+        public event EventHandler MovePiece;
         
 
         public MainWindow()
@@ -49,12 +50,12 @@ namespace Ludo
             PrepareColoredRoutes += gm.ui.DefineBtnRoutes;
             PrepareColoredBases += gm.ui.DefineBtnBases;
             PrepareBtnsAndLabels += gm.ui.InitializeUILabelsAndActionBtns;
-            
+            MovePiece += gm.ChoosePieceToMove;
         }
 
         private void MovePieceFromAndTo(object sender, RoutedEventArgs e)
         {
-            InGameEvent?.Invoke(sender, lblInfo, e);
+            MovePiece?.Invoke(sender, e);
             
         }
 
@@ -67,11 +68,6 @@ namespace Ludo
         private void EndTurn(object sender, RoutedEventArgs e)
         {
             EndTurnEvent?.Invoke();
-        }
-
-        private void ChoosePieceToMove(object sender, RoutedEventArgs e)
-        {
-
         }
 
         /// <summary>
@@ -137,7 +133,7 @@ namespace Ludo
         /// </summary>
         private void CreateRoutesAndBases()
         {
-            Button[] blueRoute = new Button[57]
+            List<Button> blueRoute = new List<Button>
             {
                 Field1,
                 Field2,
@@ -197,7 +193,7 @@ namespace Ludo
                 BlueField4,
                 BlueField5
             };
-            Button[] greenRoute = new Button[57]
+            List<Button> greenRoute = new List<Button>
             {
                 Field14,
                 Field15,
@@ -257,7 +253,7 @@ namespace Ludo
                 GreenField4,
                 GreenField5
             };
-            Button[] redRoute = new Button[57]
+            List<Button> redRoute = new List<Button>
             {
                 Field40,
                 Field41,
@@ -317,7 +313,7 @@ namespace Ludo
                 RedField4,
                 RedField5
             };
-            Button[] yellowRoute = new Button[57]
+            List<Button> yellowRoute = new List<Button>
             {
                 Field27,
                 Field28,
@@ -377,28 +373,28 @@ namespace Ludo
                 YellowField4,
                 YellowField5
             };
-            Button[] blueBase = new Button[4]
+            List<Button> blueBase = new List<Button>
             {
                 BlueBase0,
                 BlueBase1,
                 BlueBase2,
                 BlueBase3
             };
-            Button[] greenBase = new Button[4]
+            List<Button> greenBase = new List<Button>
             {
                 GreenBase0,
                 GreenBase1,
                 GreenBase2,
                 GreenBase3
             };
-            Button[] redBase = new Button[4]
+            List<Button> redBase = new List<Button>
             {
                 RedBase0,
                 RedBase1,
                 RedBase2,
                 RedBase3
             };
-            Button[] yellowBase = new Button[4]
+            List<Button> yellowBase = new List<Button>
             {
                 YellowBase0,
                 YellowBase1,
