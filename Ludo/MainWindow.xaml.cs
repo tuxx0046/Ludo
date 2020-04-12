@@ -62,7 +62,6 @@ namespace Ludo
         private void ThrowDie(object sender, RoutedEventArgs e)
         {
             ThrowDieEvent?.Invoke();
-            
         }
 
         private void EndTurn(object sender, RoutedEventArgs e)
@@ -124,6 +123,12 @@ namespace Ludo
 
         private void ExitApplication(object sender, RoutedEventArgs e)
         {
+            Application.Current.Shutdown();
+        }
+
+        private void RestartApplication(object sender, RoutedEventArgs e)
+        {
+            System.Diagnostics.Process.Start(Application.ResourceAssembly.Location);
             Application.Current.Shutdown();
         }
 

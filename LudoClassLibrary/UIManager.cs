@@ -58,8 +58,10 @@ namespace LudoClassLibrary
         /// Shows information like die value in label
         /// </summary>
         /// <param name="information"></param>
-        public void UpdateInformationLabel(string information)
+        public async void UpdateInformationLabel(string information)
         {
+            lblInformation.Content = "";
+            await Task.Delay(500);
             lblInformation.Content = information;
         }
 

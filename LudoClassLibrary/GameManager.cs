@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
@@ -252,18 +253,13 @@ namespace LudoClassLibrary
                         // goal? or reverse
 
                     }
-                    // Update field
-
-
-
-                    // end turn
                 }
-
             }
             else
             {
                 MessageNotAValidMove();
             }
+
         }
 
         /// <summary>
@@ -459,8 +455,8 @@ namespace LudoClassLibrary
 
         private bool ValidateIfChosenBtnFieldIsPartOfRoute(Button chosenField)
         {
-            // Check if clicked field is part of the base or route of the current player
-            if (ui.btnColorBases[currentPlayer.color].Contains(chosenField) || ui.btnColorRoutes[currentPlayer.color].Contains(chosenField))
+            // Check if clicked field is part of the base or route of the current player, and is not the goal field
+            if (ui.btnColorBases[currentPlayer.color].Contains(chosenField) || ui.btnColorRoutes[currentPlayer.color].Contains(chosenField) && chosenField != ui.btnColorRoutes[currentPlayer.color][56])
             {
                 return true;
             }
@@ -485,385 +481,30 @@ namespace LudoClassLibrary
             ui.UpdateInformationLabel("You got hit back to base!");
         }
 
-        private void ValidateMoveInBackEnd(int routeIndex)
+        /// <summary>
+        /// Checks if current player has won the game
+        /// </summary>
+        private void CheckForWinner()
         {
-            Field[] route = GetCorrespondingColoredRoute(currentPlayer.color);
-            // check to see if there is a piece on field
+            int numberOfPieces = 4;
+            bool allPiecesReachedGoal = true;
+            for (int i = 1; i <= numberOfPieces; i++)
+            {
+                if(playerPiecePairs[currentPlayer][i].reachedGoal == false)
+                {
+                    allPiecesReachedGoal = false;
+                }
+            }
+
+            if (allPiecesReachedGoal == true)
+            {
+                ui.UpdateInformationLabel("Won the game!");
+                MessageBox.Show(currentPlayer.color.ToString() + " has won the game!");
+            }
+            
         }
-
-        private Field[] GetCorrespondingColoredRoute(LudoColor color)
-        {
-            if (color == LudoColor.Blue)
-            {
-                return ludoBoard.blueRoute;
-            }
-            else if (color == LudoColor.Green)
-            {
-                return ludoBoard.greenRoute;
-            }
-            else if (color == LudoColor.Red)
-            {
-                return ludoBoard.redRoute;
-            }
-            else
-            {
-                return ludoBoard.yellowRoute;
-            }
-        }
-
-
         #endregion
 
     }
 }
 
-
-//ui.btnEndTurn.RaiseEvent(new System.Windows.RoutedEventArgs(Button.ClickEvent));
-
-/*
-class Program
-{
-    
-        // Prompt for number of players
-        PromptUser.ChooseNumberOfPlayers();
-
-        // Activate player chosen number of players
-        for (int i = 0; i < numberOfPlayers; i++)
-        {
-            activePlayers.Add(allPlayers[i]);
-        }
-        PromptUser.TurnAIOnOff();
-
-        // Run the game
-        bool keepRunning = true;
-        while (keepRunning)
-        {
-            Console.Clear();
-            // check if the player's pieces have all reached the goal and remove from activePlayer list if yes
-            RemovePlayersFromActivePlayListIfWon(activePlayers);
-            // if no players in list, game is finished
-            if (activePlayers.Count == 0)
-            {
-                keepRunning = false;
-                continue;
-            }
-            // Logic to loop through each player's turn
-            foreach (Player player in activePlayers)
-            {
-                Console.Clear();
-                Console.WriteLine(player.Colour + " player's turn.");
-                switch (player.Colour)
-                {
-                    case "Green":
-                        // if all pieces are in base roll three times or until 6
-                        if (board.CheckIfAllPiecesInBase(greenPieces) == true)
-                        {
-                            diceRollResult = Dice.RollDiceThreeTimes();
-                            if (diceRollResult != 6)
-                            {
-                                break;
-                            }
-                        }
-                        else
-                        {
-                            diceRollResult = Dice.RollDice();
-                        }
-                        board.DisplayBoard();
-                        if (greenPlayer.ComputerAI == true)
-                        {
-                            ComputerAI.ChoosePieceToMove(greenPieces);
-                        }
-                        else
-                        {
-                            PromptUser.ChoosePieceToMove(greenPieces);
-
-                        }
-                        board.MovePiece(board.greenRoute, greenPieces[pieceToMove], diceRollResult);
-                        board.DisplayBoard();
-                        break;
-                    case "Blue":
-                        if (board.CheckIfAllPiecesInBase(bluePieces) == true)
-                        {
-                            diceRollResult = Dice.RollDiceThreeTimes();
-                            if (diceRollResult != 6)
-                            {
-                                break;
-                            }
-                        }
-                        else
-                        {
-                            diceRollResult = Dice.RollDice();
-                        }
-                        board.DisplayBoard();
-                        if (bluePlayer.ComputerAI == true)
-                        {
-                            ComputerAI.ChoosePieceToMove(bluePieces);
-                        }
-                        else
-                        {
-                            PromptUser.ChoosePieceToMove(bluePieces);
-                        }
-                        board.MovePiece(board.blueRoute, bluePieces[pieceToMove], diceRollResult);
-                        board.DisplayBoard();
-                        break;
-                    case "Yellow":
-                        if (board.CheckIfAllPiecesInBase(yellowPieces) == true)
-                        {
-                            diceRollResult = Dice.RollDiceThreeTimes();
-                            if (diceRollResult != 6)
-                            {
-                                break;
-                            }
-                        }
-                        else
-                        {
-                            diceRollResult = Dice.RollDice();
-                        }
-                        board.DisplayBoard();
-                        if (yellowPlayer.ComputerAI == true)
-                        {
-                            ComputerAI.ChoosePieceToMove(yellowPieces);
-                        }
-                        else
-                        {
-                            PromptUser.ChoosePieceToMove(yellowPieces);
-                        }
-                        board.MovePiece(board.yellowRoute, yellowPieces[pieceToMove], diceRollResult);
-                        board.DisplayBoard();
-                        break;
-                    case "Red":
-                        if (board.CheckIfAllPiecesInBase(redPieces) == true)
-                        {
-                            diceRollResult = Dice.RollDiceThreeTimes();
-                            if (diceRollResult != 6)
-                            {
-                                break;
-                            }
-                        }
-                        else
-                        {
-                            diceRollResult = Dice.RollDice();
-                        }
-                        board.DisplayBoard();
-                        if (redPlayer.ComputerAI == true)
-                        {
-                            ComputerAI.ChoosePieceToMove(redPieces);
-                        }
-                        else
-                        {
-                            PromptUser.ChoosePieceToMove(redPieces);
-                        }
-                        board.MovePiece(board.redRoute, redPieces[pieceToMove], diceRollResult);
-                        board.DisplayBoard();
-                        break;
-                }
-            }
-        }
-
-        Console.WriteLine("Congratulations! You all won!");
-        foreach (Player player in winners)
-        {
-            Console.WriteLine(player);
-        }
-        // optional: input code to show player-ranking. Use "List<Player> winners" for simple solution 
-
-        //board.demoBoard() for testing board fields and piece movement. Deprecated. Need to make variables public 
-        Console.ReadLine();
-
-    }
-
-
-    // Remove from active list at put into winners list
-    static void RemovePlayersFromActivePlayListIfWon(List<Player> activePlayers)
-    {
-        if (activePlayers.Exists(Player => Player == greenPlayer))
-        {
-            if (Board.CheckIfAllPiecesReachedGoal(greenPieces) == true)
-            {
-                activePlayers.Remove(greenPlayer);
-                winners.Add(greenPlayer);
-            }
-        }
-
-        if (activePlayers.Exists(Player => Player == bluePlayer))
-        {
-            if (Board.CheckIfAllPiecesReachedGoal(bluePieces) == true)
-            {
-                activePlayers.Remove(bluePlayer);
-                winners.Add(bluePlayer);
-            }
-        }
-
-        if (activePlayers.Exists(Player => Player == yellowPlayer))
-        {
-            if (Board.CheckIfAllPiecesReachedGoal(yellowPieces) == true)
-            {
-                activePlayers.Remove(yellowPlayer);
-                winners.Add(yellowPlayer);
-            }
-        }
-
-        if (activePlayers.Exists(Player => Player == redPlayer))
-        {
-            if (Board.CheckIfAllPiecesReachedGoal(redPieces) == true)
-            {
-                activePlayers.Remove(redPlayer);
-                winners.Add(redPlayer);
-            }
-        }
-    }
-}
-
-class PromptUser
-{
-    public static void ChooseNumberOfPlayers()
-    {
-        Console.Write("Choose number of players: ");
-        string userInput = Console.ReadLine();
-        Console.Clear();
-        if (string.IsNullOrWhiteSpace(userInput) ||
-            Convert.ToInt32(userInput) > 4 ||
-            Convert.ToInt32(userInput) < 2)
-        {
-            Console.WriteLine("Invalid number of players. Try again");
-            ChooseNumberOfPlayers();
-        }
-        else
-        {
-            Program.numberOfPlayers = Convert.ToInt32(userInput);
-        }
-    }
-
-    public static void ChoosePieceToMove(Piece[] pieces)
-    {
-        Console.Write("Choose which piece (number) you want to move: ");
-        string userInput = Console.ReadLine();
-        if (string.IsNullOrWhiteSpace(userInput) ||
-            Convert.ToInt32(userInput) > 4 ||
-            Convert.ToInt32(userInput) < 1)
-        {
-            Console.WriteLine("Invalid piece number. Try again");
-            ChoosePieceToMove(pieces);
-        }
-        else
-        {
-            // minus 1 so pieceToMove matches 0 index array
-            Program.pieceToMove = Convert.ToInt32(userInput) - 1;
-        }
-
-        if (Piece.CheckIfPieceCanBeMoved(pieces[Program.pieceToMove]) == false)
-        {
-            ChoosePieceToMove(pieces);
-        }
-    }
-
-    public static void TurnAIOnOff()
-    {
-        Console.WriteLine("Do you wish AI players? Write \"yes\" or \"no\" to choose. Answers are CASESENSITIVE!");
-        string userinput = Console.ReadLine();
-        if (string.IsNullOrWhiteSpace(userinput) || userinput != "yes")
-        {
-            Console.WriteLine("Computer AI set to off");
-        }
-        else
-        {
-            ChooseAIPlayers(Program.activePlayers);
-        }
-
-    }
-
-    public static void ChooseAIPlayers(List<Player> activeplayers)
-    {
-        Console.WriteLine("Which players should be controlled by the computer AI?");
-        Console.WriteLine("You can choose from these players:");
-
-        switch (activeplayers.Count)
-        {
-            case 2:
-                // green blue
-                foreach (Player player in activeplayers)
-                {
-                    Console.WriteLine("\t" + player.Colour);
-                }
-                break;
-            case 3:
-                // green blue yellow
-                foreach (Player player in activeplayers)
-                {
-                    Console.WriteLine("\t" + player.Colour);
-                }
-                break;
-            case 4:
-                // green blue yellow red
-                foreach (Player player in activeplayers)
-                {
-                    Console.WriteLine("\t" + player.Colour);
-                }
-                break;
-        }
-        Console.WriteLine("Choice is casesensitive. When done choosing write \"finished\" to start the game!");
-        // boolean to check userchoice for turning AI on/ff
-        bool makeAIChoices = true;
-        // variable to avoid certain loops to happen
-        bool colourMatch = false;
-
-        string userInput;
-
-        while (makeAIChoices)
-        {
-            userInput = Console.ReadLine();
-            if (string.IsNullOrWhiteSpace(userInput))
-            {
-                Console.WriteLine("Invalid input. Please write \"finished\" or a valid player colour");
-                continue;
-            }
-            if (userInput == "finished")
-            {
-                makeAIChoices = false;
-                continue;
-            }
-            // Loop to check if input matches colour of active players
-            for (int i = 0; i < activeplayers.Count; i++)
-            {
-                if (userInput == activeplayers[i].Colour)
-                {
-                    // sest colourmatch to true so invalid colourloop does not run
-                    colourMatch = true;
-                    if (activeplayers[i].ComputerAI == false)
-                    {
-                        activeplayers[i].ComputerAI = true;
-                        Console.WriteLine(activeplayers[i].Colour + " player AI turned ON");
-                        break;
-                    }
-                    else
-                    {
-                        activeplayers[i].ComputerAI = false;
-                        Console.WriteLine(activeplayers[i].Colour + " player AI turned OFF");
-                        break;
-                    }
-                }
-            }
-
-            // if colour string doesn't match only then run this
-            if (colourMatch == false)
-            {
-                for (int i = 0; i < activeplayers.Count; i++)
-                {
-                    if (userInput != activeplayers[i].Colour)
-                    {
-                        Console.WriteLine("Invalid player colour!");
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                continue;
-            }
-            // reset colourmatch
-            colourMatch = false;
-
-        }
-    }
-}
-*/
