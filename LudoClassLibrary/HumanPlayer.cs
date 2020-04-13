@@ -4,12 +4,10 @@ using System.Text;
 
 namespace LudoClassLibrary
 {
-    public class HumanPlayer: Player
+    internal class HumanPlayer: Player
     {
         #region Constructor
-        public HumanPlayer(LudoColor color): base(color) { }
+        internal HumanPlayer(LudoColor color): base(color) { }
         #endregion
-                     
-
     }
 }

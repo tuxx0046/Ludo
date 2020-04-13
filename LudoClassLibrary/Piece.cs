@@ -7,22 +7,23 @@ namespace LudoClassLibrary
     /// <summary>
     /// The pieces to be moved by players. Each player has 4 pieces.
     /// </summary>
-    public class Piece
+    internal class Piece
     {
         #region Fields
-        public LudoColor color;
+        internal LudoColor color { get; }
+        internal int RoutePosition;
+
         #endregion
 
         #region Properties
-        public int BasePositionId { get; }
+        internal int BasePositionId { get; }
 
         /// <summary>
         /// The position tells where on the route (Field) a Piece is.<br/>
         /// Use as Route index.
         /// </summary>
-        public int RoutePosition;
-        public bool reachedGoal { get; set; } = false;
-        public bool inBase { get; set; } = true;
+        internal bool reachedGoal { get; set; } = false;
+        internal bool inBase { get; set; } = true;
         #endregion
 
         #region Constructor
@@ -31,7 +32,7 @@ namespace LudoClassLibrary
         /// </summary>
         /// <param name="color">Must be a valid color from LudoColor</param>
         /// <param name="basePositionId">Position from 0 to 3</param>
-        public Piece(LudoColor color, int basePositionId) 
+        internal Piece(LudoColor color, int basePositionId) 
         {
             this.color = color;
             this.BasePositionId = basePositionId;

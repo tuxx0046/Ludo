@@ -42,7 +42,7 @@ namespace Ludo
         {
             InitializeComponent();
             GameManager gm = new GameManager();
-            gm.ludoBoard.InitWholeBoardAndCreateRoutes();
+            //gm.ludoBoard.InitWholeBoardAndCreateRoutes();
             StartGameEvent += gm.RunGame;
             AIEnableEvent += gm.RegisterEnabledAIPlayers;
             ThrowDieEvent += gm.ThrowDie;

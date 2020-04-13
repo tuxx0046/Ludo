@@ -7,32 +7,32 @@ namespace LudoClassLibrary
     /// <summary>
     /// Ludo board
     /// </summary>
-    public class Board
+    internal class Board
     {
         #region Fields
         // Fields where all players can move and interact
-        public Field[] normalFields = new Field[52];
+        internal Field[] normalFields = new Field[52];
 
         // The routes assigned to the Pieces to follow - 51 normal fields + 6 color-specific
-        public Field[] blueRoute = new Field[57];
-        public Field[] greenRoute = new Field[57];
-        public Field[] redRoute = new Field[57];
-        public Field[] yellowRoute = new Field[57];
+        internal Field[] blueRoute = new Field[57];
+        internal Field[] greenRoute = new Field[57];
+        internal Field[] redRoute = new Field[57];
+        internal Field[] yellowRoute = new Field[57];
 
         // The starting point for all Pieces and where they'll end up if thrown back
-        public Field[] blueBase;
-        public Field[] greenBase;
-        public Field[] redBase;
-        public Field[] yellowBase;
+        internal Field[] blueBase;
+        internal Field[] greenBase;
+        internal Field[] redBase;
+        internal Field[] yellowBase;
 
-        public Dictionary<LudoColor, Field[]> routes = new Dictionary<LudoColor, Field[]>();
+        internal Dictionary<LudoColor, Field[]> routes = new Dictionary<LudoColor, Field[]>();
         #endregion
 
         #region Methods
         /// <summary>
         /// Initializes fields and routes
         /// </summary>
-        public void InitWholeBoardAndCreateRoutes()
+        internal void InitWholeBoardAndCreateRoutes()
         {
             #region Base fields
             blueBase = new Field[]
@@ -363,286 +363,6 @@ namespace LudoClassLibrary
 
         }
 
-        /// <summary>
-        /// Adds a piece to a field on route
-        /// </summary>
-        /// <param name="piece"></param>
-        /// <param name="index"></param>
-        public void AddPieceToFieldOnRoute(Piece piece, int index)
-        {
-            if (piece.color == LudoColor.Blue)
-            {
-                blueRoute[index].AddOccupant(piece);
-            }
-            else if (piece.color == LudoColor.Green)
-            {
-                greenRoute[index].AddOccupant(piece);
-            }
-            else if (piece.color == LudoColor.Red)
-            {
-                redRoute[index].AddOccupant(piece);
-            }
-            else
-            {
-                yellowRoute[index].AddOccupant(piece);
-            }
-        }
-
         #endregion
-        /*
-        public void MovePiece(Field[] route, Piece chosenpiecetomove, int dicenumber)
-        {
-            // if piece is in base, move it out to index 0 on responding route (remove piece from base!)
-            if (chosenpiecetomove.inBase == true && dicenumber == 6)
-            {
-                chosenpiecetomove.inBase = false;
-                chosenpiecetomove.fieldPosition = 0;
-                route[0].piecesOnField.Add(chosenpiecetomove);
-                // Multiple pieces on same field be expressed differently. Multiple should be double letters fx. GG or RR etc.
-                UpdateFieldContent(route[0]);
-
-            }
-            // normal movement
-            else
-            {
-                // If not reached goal yet
-                if (chosenpiecetomove.fieldPosition + dicenumber < route.Length)
-                {
-                    // remove from current position & move to new position
-                    route[chosenpiecetomove.fieldPosition].piecesOnField.Remove(chosenpiecetomove);
-                    UpdateFieldContent(route[chosenpiecetomove.fieldPosition]);
-                    chosenpiecetomove.fieldPosition += dicenumber;
-                    CheckFieldForOpponentsAndMove(route, chosenpiecetomove);
-                }
-                // If piece "passes" the goal, move backwards (opponents do not exist on the end fields)
-                else if (chosenpiecetomove.fieldPosition + dicenumber > route.Length)
-                {
-                    route[chosenpiecetomove.fieldPosition].piecesOnField.Remove(chosenpiecetomove);
-                    UpdateFieldContent(route[chosenpiecetomove.fieldPosition]);
-                    chosenpiecetomove.fieldPosition += dicenumber;
-                    int fieldsToMoveBack = chosenpiecetomove.fieldPosition - route.Length;
-                    int destinationField = route.Length - fieldsToMoveBack;
-                    route[destinationField].piecesOnField.Add(chosenpiecetomove);
-                    UpdateFieldContent(route[destinationField]);
-                }
-                // Reached goal
-                else //(chosenpiecetomove.fieldPosition + dicenumber == route.Length)
-                {
-                    route[chosenpiecetomove.fieldPosition].piecesOnField.Remove(chosenpiecetomove);
-                    UpdateFieldContent(route[chosenpiecetomove.fieldPosition]);
-                    chosenpiecetomove.fieldPosition += dicenumber;
-                    route[chosenpiecetomove.fieldPosition].piecesOnField.Add(chosenpiecetomove);
-                    chosenpiecetomove.reachedGoal = true;
-                    UpdateFieldContent(route[route.Length - 1]);
-                }
-            }
-
-        }
-
-        public void CheckFieldForOpponentsAndMove(Field[] route, Piece chosenpiecetomove)
-        {
-            // Check field for opponents and kick opponent back to base if only one opponent is there
-            if (route[chosenpiecetomove.fieldPosition].OccupantColour != chosenpiecetomove.Colour && route[chosenpiecetomove.fieldPosition].piecesOnField.Count == 1)
-            {
-                route[chosenpiecetomove.fieldPosition].piecesOnField[0].inBase = true;
-                route[chosenpiecetomove.fieldPosition].piecesOnField[0].fieldPosition = 0;
-                route[chosenpiecetomove.fieldPosition].piecesOnField.RemoveAt(0);
-                route[chosenpiecetomove.fieldPosition].OccupantColour = "empty";
-
-                // update the info of the moved piece and new field
-                route[chosenpiecetomove.fieldPosition].piecesOnField.Add(chosenpiecetomove);
-                UpdateFieldContent(route[chosenpiecetomove.fieldPosition]);
-            }
-            // If opponents are more than one then the chosen piece gets kicked back to base
-            else if (route[chosenpiecetomove.fieldPosition].OccupantColour != chosenpiecetomove.Colour && route[chosenpiecetomove.fieldPosition].piecesOnField.Count > 1)
-            {
-                chosenpiecetomove.inBase = true;
-                chosenpiecetomove.fieldPosition = 0;
-            }
-            // if no opponents are there
-            else
-            {
-                route[chosenpiecetomove.fieldPosition].piecesOnField.Add(chosenpiecetomove);
-                UpdateFieldContent(route[chosenpiecetomove.fieldPosition]);
-            }
-
-        }
-
-        public void UpdateFieldContent(Field fieldtobeopdated)
-        {
-            if (fieldtobeopdated.piecesOnField.Count > 1)
-            {
-                fieldtobeopdated.FieldContent = fieldtobeopdated.piecesOnField[0].fieldAppearanceMoreThanOne;
-                fieldtobeopdated.Occupied = true;
-                fieldtobeopdated.OccupantColour = fieldtobeopdated.piecesOnField[0].Colour;
-            }
-            else if (fieldtobeopdated.piecesOnField.Count == 1)
-            {
-                fieldtobeopdated.FieldContent = fieldtobeopdated.piecesOnField[0].fieldAppearance;
-                fieldtobeopdated.Occupied = true;
-                fieldtobeopdated.OccupantColour = fieldtobeopdated.piecesOnField[0].Colour;
-            }
-            else
-            {
-                fieldtobeopdated.FieldContent = fieldtobeopdated.defaultField;
-                fieldtobeopdated.Occupied = false;
-                fieldtobeopdated.OccupantColour = "empty";
-            }
-        }
-
-
-        public void DisplayBoard()
-        {
-            string[] boardRows = new string[16];
-            for (int i = 0; i < boardFields.GetLength(0); i++)
-            {
-                for (int j = 0; j < boardFields.GetLength(1); j++)
-                {
-                    if (boardFields[i, j].Occupied == false)
-                    {
-                        boardFields[i, j].FieldContent = boardFields[i, j].defaultField;
-                    }
-                    boardRows[i] += boardFields[i, j].FieldContent;
-                }
-            }
-            foreach (var row in boardRows)
-            {
-                Console.WriteLine(row);
-            }
-        }
-
-        public bool CheckIfAllPiecesInBase(Piece[] pieces)
-        {
-            int numberOfPiecesInBase = 0;
-            for (int i = 0; i < pieces.Length; i++)
-            {
-                if (pieces[i].inBase == true)
-                {
-                    numberOfPiecesInBase++;
-                }
-            }
-
-            if (numberOfPiecesInBase == 4)
-            {
-                return true;
-
-            }
-            else { return false; }
-        }
-
-        public static bool CheckIfAllPiecesReachedGoal(Piece[] setofpieces)
-        {
-            int numberOfPiecesInGoal = 0;
-            for (int i = 0; i < setofpieces.Length; i++)
-            {
-                if (setofpieces[i].reachedGoal == true)
-                {
-                    numberOfPiecesInGoal++;
-                }
-            }
-
-            if (numberOfPiecesInGoal == 4)
-            {
-                return true;
-            }
-            else { return false; }
-        }
-        #endregion
-        /*
-        public void demoBoard()
-        {
-            // DisplayBoard shows default if fields not occupied.
-            Console.ForegroundColor = ConsoleColor.Green;
-            for (int j = 0; j < Program.greenPieces.Length; j++)
-            {
-                for (int i = 0; i < 57; i++)
-                {
-                    greenRoute[i].FieldContent = Program.greenPieces[j].fieldAppearance;
-                    Console.Clear();
-                    DisplayBoard();
-                    System.Threading.Thread.Sleep(20);
-                    greenRoute[i].FieldContent = greenRoute[i].defaultField;
-                }
-            }
-            Console.ForegroundColor = ConsoleColor.Blue;
-            for (int j = 0; j < Program.bluePieces.Length; j++)
-            {
-                for (int i = 0; i < 57; i++)
-                {
-                    blueRoute[i].FieldContent = Program.bluePieces[j].fieldAppearance;
-                    Console.Clear();
-                    DisplayBoard();
-                    System.Threading.Thread.Sleep(20);
-                    blueRoute[i].FieldContent = blueRoute[i].defaultField;
-                }
-            }
-
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            for (int j = 0; j < Program.yellowPieces.Length; j++)
-            {
-                for (int i = 0; i < 57; i++)
-                {
-                    yellowRoute[i].FieldContent = Program.yellowPieces[j].fieldAppearance;
-                    Console.Clear();
-                    DisplayBoard();
-                    System.Threading.Thread.Sleep(20);
-                    yellowRoute[i].FieldContent = yellowRoute[i].defaultField;
-                }
-            }
-            Console.ForegroundColor = ConsoleColor.Red;
-            for (int j = 0; j < Program.redPieces.Length; j++)
-            {
-                for (int i = 0; i < 57; i++)
-                {
-                    redRoute[i].FieldContent = Program.redPieces[j].fieldAppearance;
-                    Console.Clear();
-                    DisplayBoard();
-                    System.Threading.Thread.Sleep(20);
-                    redRoute[i].FieldContent = redRoute[i].defaultField;
-                }
-            }
-        }
-        */
-        /// Board sketch
-        /*                 
-        ("0112334556778991111131151171192212232252272293");
-        ("______________________________________________"); // 0
-        ("                  |__|__|__|                 |"); // 1
-        ("                  |__|Y_|Y_|                 |"); // 2 
-        ("       G1 G2      |__|Y_|__|      Y1 Y2      |"); // 3
-        ("       G3 G4      |__|Y_|__|      Y3 Y4      |"); // 4
-        ("                  |__|Y_|__|                 |"); // 5
-        ("__________________|__|Y_|__|_________________|"); // 6
-        ("|__|G_|__|__|__|__|/      \\|__|__|__|__|__|__|"); // 7
-        ("|__|G_|G_|G_|G_|G_|  GOAL  |_B|_B|_B|_B|_B|__|"); // 8
-        ("|__|__|__|__|__|__|\\      /|__|__|__|__|_B|__|"); // 9
-        ("                  |__|R_|__|                 |"); // 10
-        ("                  |__|R_|__|                 |"); // 11
-        ("       R1 R2      |__|R_|__|      B1 B2      |"); // 12
-        ("       R3 R4      |__|R_|__|      B3 B4      |"); // 13
-        ("                  |R_|R_|__|                 |"); // 14
-        ("__________________|__|__|__|_________________|"); // 15
-
-        Green numbering example
-        ("0112334556778991111131151171192212232252272293");
-        ("______________________________________________"); // 0
-        ("                  |10|11|12|                 |"); // 1
-        ("                  |9_|Y_|13|                 |"); // 2 
-        ("       G1 G2      |8_|Y_|14|      Y1 Y2      |"); // 3
-        ("       G3 G4      |7_|Y_|15|      Y3 Y4      |"); // 4
-        ("                  |6_|Y_|16|                 |"); // 5
-        ("__________________|5_|Y_|17|_________________|"); // 6
-        ("|51|0_|1_|2_|3_|4_|/      \\|18|19|20|21|22|23|"); // 7
-        ("|50|G_|G_|G_|G_|G_|  GOAL  |_B|_B|_B|_B|_B|24|"); // 8
-        ("|49|48|47|46|45|44|\\      /|30|29|28|27|26|25|"); // 9
-        ("                  |43|R_|31|                 |"); // 10
-        ("                  |42|R_|32|                 |"); // 11
-        ("       R1 R2      |41|R_|33|      B1 B2      |"); // 12
-        ("       R3 R4      |40|R_|34|      B3 B4      |"); // 13
-        ("                  |39|R_|35|                 |"); // 14
-        ("__________________|38|37|36|_________________|"); // 15
-
-        */
-
     }
 }

@@ -7,7 +7,7 @@ namespace LudoClassLibrary
     /// <summary>
     /// A die that will return random values from 1 to 6.
     /// </summary>
-    public static class Die
+    internal static class Die
     {
         #region Fields
         private static Random random = new Random();
@@ -18,7 +18,7 @@ namespace LudoClassLibrary
         /// Returns a random value between 1 and 6. <br/>
         /// Registers that is has been thrown when calling value.
         /// </summary>
-        public static int RandomDieValue
+        internal static int RandomDieValue
         {
             get
             {
@@ -31,11 +31,11 @@ namespace LudoClassLibrary
         /// <summary>
         /// True if it has been thrown
         /// </summary>
-        public static bool HasBeenThrown { get; set; } = false;
+        internal static bool HasBeenThrown { get; set; } = false;
         /// <summary>
         /// Counts number of times it has been thrown.
         /// </summary>
-        public static int TimesThrown { get; set; } = 0;
+        internal static int TimesThrown { get; set; } = 0;
         #endregion
     }
 }

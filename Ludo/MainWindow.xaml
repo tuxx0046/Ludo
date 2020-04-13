@@ -180,9 +180,9 @@
                         <ColumnDefinition></ColumnDefinition>
                         <ColumnDefinition></ColumnDefinition>
                     </Grid.ColumnDefinitions>
-                    <CheckBox x:Name="chkBxRedAI" Content="Turn on Blue AI" Grid.Column="0" Grid.Row="0"/>
-                    <CheckBox x:Name="chkBxBlueAI" Content="Turn on Green AI" Grid.Column="0" Grid.Row="1"/>
-                    <CheckBox x:Name="chkBxGreenAI" Content="Turn on Red AI" Grid.Column="1" Grid.Row="0"/>
+                    <CheckBox x:Name="chkBxBlueAI" Content="Turn on Blue AI" Grid.Column="0" Grid.Row="0"/>
+                    <CheckBox x:Name="chkBxGreenAI" Content="Turn on Green AI" Grid.Column="0" Grid.Row="1"/>
+                    <CheckBox x:Name="chkBxRedAI" Content="Turn on Red AI" Grid.Column="1" Grid.Row="0"/>
                     <CheckBox x:Name="chkBxYellowAI" Content="Turn on Yellow AI" Grid.Column="1" Grid.Row="1"/>
                 </Grid>
                 

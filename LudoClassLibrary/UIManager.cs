@@ -13,14 +13,20 @@ namespace LudoClassLibrary
     public class UIManager
     {
 
-        public Button btnDie;
-        public Button btnFieldToMoveFrom;
-        public Button btnEndTurn;
-        public Label lblPlayerTurn;
-        public Label lblInformation;
-        public Dictionary<LudoColor, List<Button>> btnColorRoutes = new Dictionary<LudoColor, List<Button>>();
-        public Dictionary<LudoColor, List<Button>> btnColorBases = new Dictionary<LudoColor, List<Button>>();
+        internal Button btnDie;
+        internal Button btnEndTurn;
+        private Label lblPlayerTurn;
+        private Label lblInformation;
+        internal Dictionary<LudoColor, List<Button>> btnColorRoutes = new Dictionary<LudoColor, List<Button>>();
+        internal Dictionary<LudoColor, List<Button>> btnColorBases = new Dictionary<LudoColor, List<Button>>();
 
+        /// <summary>
+        /// Gets XAML button Lists from Ludo project and adds the to the ui object Color Routes dictionary
+        /// </summary>
+        /// <param name="blueRoute"></param>
+        /// <param name="greenRoute"></param>
+        /// <param name="redRoute"></param>
+        /// <param name="yellowRoute"></param>
         public void DefineBtnRoutes(object blueRoute, object greenRoute, object redRoute, object yellowRoute)
         {
             btnColorRoutes.Add(LudoColor.Blue, blueRoute as List<Button>);
@@ -29,6 +35,13 @@ namespace LudoClassLibrary
             btnColorRoutes.Add(LudoColor.Yellow, yellowRoute as List<Button>);
         }
 
+        /// <summary>
+        /// Gets XAML button Lists from Ludo project and adds the to the ui object Color Bases dictionary
+        /// </summary>
+        /// <param name="blueBase"></param>
+        /// <param name="greenBase"></param>
+        /// <param name="redBase"></param>
+        /// <param name="yellowBase"></param>
         public void DefineBtnBases(object blueBase, object greenBase, object redBase, object yellowBase)
         {
             btnColorBases.Add(LudoColor.Blue, blueBase as List<Button>);
@@ -37,6 +50,13 @@ namespace LudoClassLibrary
             btnColorBases.Add(LudoColor.Yellow, yellowBase as List<Button>);
         }
 
+        /// <summary>
+        /// Gets XAML buttons and labels from Ludo project and adds the to the ui fields for manipulation in GameManager
+        /// </summary>
+        /// <param name="die"></param>
+        /// <param name="endTurn"></param>
+        /// <param name="information"></param>
+        /// <param name="playerTurn"></param>
         public void InitializeUILabelsAndActionBtns(object die, object endTurn, object information, object playerTurn)
         {
             btnDie = die as Button;
@@ -49,7 +69,7 @@ namespace LudoClassLibrary
         /// Show who's turn it is in label
         /// </summary>
         /// <param name="currentPlayerColor"></param>
-        public void ShowCurrentPlayer(string currentPlayerColor)
+        internal void ShowCurrentPlayer(string currentPlayerColor)
         {
             lblPlayerTurn.Content = currentPlayerColor + "'s turn";
         }
@@ -58,7 +78,7 @@ namespace LudoClassLibrary
         /// Shows information like die value in label
         /// </summary>
         /// <param name="information"></param>
-        public async void UpdateInformationLabel(string information)
+        internal async void UpdateInformationLabel(string information)
         {
             lblInformation.Content = "";
             await Task.Delay(500);
@@ -71,7 +91,7 @@ namespace LudoClassLibrary
         /// </summary>
         /// <param name="color"></param>
         /// <param name="field"></param>
-        public void ChangeColor(LudoColor color, Button field)
+        internal void ChangeColor(LudoColor color, Button field)
         {
             if (btnColorBases[color].Contains(field))
             {
@@ -110,7 +130,7 @@ namespace LudoClassLibrary
         /// </summary>
         /// <param name="numberOfOccuppants"></param>
         /// <param name="field"></param>
-        public void ChangeNumberOfOccuppants(int numberOfOccuppants, Button field)
+        internal void ChangeNumberOfOccuppants(int numberOfOccuppants, Button field)
         {
             if (numberOfOccuppants == 0)
             {
@@ -147,7 +167,7 @@ namespace LudoClassLibrary
         /// Changes field back to its starting color. Use on route fields.
         /// </summary>
         /// <param name="field"></param>
-        public void ChangeColorToOriginalColor(Button field)
+        internal void ChangeColorToOriginalColor(Button field)
         {
             if (field == btnColorRoutes[LudoColor.Blue][0] || 
                 field == btnColorRoutes[LudoColor.Blue][51] || 
@@ -191,7 +211,7 @@ namespace LudoClassLibrary
             }
         }
 
-        public int GetIndexOfField(LudoColor color, Button chosenField)
+        internal int GetIndexOfField(LudoColor color, Button chosenField)
         {
             int index;
 
@@ -206,80 +226,5 @@ namespace LudoClassLibrary
             
             return index;
         }
-        
-        //public void DisableAllRoutesAndBases()
-        //{
-        //    foreach (Button button in btnColorBases[LudoColor.Blue])
-        //    {
-        //        button.IsEnabled = false;
-        //    }
-        //    foreach (Button button in btnColorBases[LudoColor.Green])
-        //    {
-        //        button.IsEnabled = false;
-        //    }
-        //    foreach (Button button in btnColorBases[LudoColor.Red])
-        //    {
-        //        button.IsEnabled = false;
-        //    }
-        //    foreach (Button button in btnColorBases[LudoColor.Yellow])
-        //    {
-        //        button.IsEnabled = false;
-        //    }
-
-        //    foreach (Button button in btnColorRoutes[LudoColor.Blue])
-        //    {
-        //        button.IsEnabled = false;
-        //    }
-        //    foreach (Button button in btnColorRoutes[LudoColor.Green])
-        //    {
-        //        button.IsEnabled = false;
-        //    }
-        //    foreach (Button button in btnColorRoutes[LudoColor.Red])
-        //    {
-        //        button.IsEnabled = false;
-        //    }
-        //    foreach (Button button in btnColorRoutes[LudoColor.Yellow])
-        //    {
-        //        button.IsEnabled = false;
-        //    }
-        //}
-
-        //public void EnableAllRoutesAndBases()
-        //{
-        //    foreach (Button button in btnColorBases[LudoColor.Blue])
-        //    {
-        //        button.IsEnabled = true;
-        //    }
-        //    foreach (Button button in btnColorBases[LudoColor.Green])
-        //    {
-        //        button.IsEnabled = true;
-        //    }
-        //    foreach (Button button in btnColorBases[LudoColor.Red])
-        //    {
-        //        button.IsEnabled = true;
-        //    }
-        //    foreach (Button button in btnColorBases[LudoColor.Yellow])
-        //    {
-        //        button.IsEnabled = true;
-        //    }
-
-        //    foreach (Button button in btnColorRoutes[LudoColor.Blue])
-        //    {
-        //        button.IsEnabled = true;
-        //    }
-        //    foreach (Button button in btnColorRoutes[LudoColor.Green])
-        //    {
-        //        button.IsEnabled = true;
-        //    }
-        //    foreach (Button button in btnColorRoutes[LudoColor.Red])
-        //    {
-        //        button.IsEnabled = true;
-        //    }
-        //    foreach (Button button in btnColorRoutes[LudoColor.Yellow])
-        //    {
-        //        button.IsEnabled = true;
-        //    }
-        //}
-        
     }
 }
