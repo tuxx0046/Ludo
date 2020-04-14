@@ -9,7 +9,7 @@ namespace LudoClassLibrary
     internal abstract class Player
     {
         #region Properties
-        internal LudoColor color { get; }
+        internal LudoColor Color { get; }
         internal bool HasFinished { get; set; }
         #endregion
 
@@ -20,7 +20,7 @@ namespace LudoClassLibrary
         /// <param name="color"></param>
         internal Player(LudoColor color)
         {
-            this.color = color;
+            this.Color = color;
         }
         #endregion
 

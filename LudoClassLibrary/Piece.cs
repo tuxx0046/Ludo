@@ -10,20 +10,20 @@ namespace LudoClassLibrary
     internal class Piece
     {
         #region Fields
-        internal LudoColor color { get; }
-        internal int RoutePosition;
+        internal int routePosition = 0;
 
         #endregion
 
         #region Properties
         internal int BasePositionId { get; }
+        internal LudoColor Color { get; }
 
         /// <summary>
         /// The position tells where on the route (Field) a Piece is.<br/>
         /// Use as Route index.
         /// </summary>
-        internal bool reachedGoal { get; set; } = false;
-        internal bool inBase { get; set; } = true;
+        internal bool ReachedGoal { get; set; } = false;
+        internal bool InBase { get; set; } = true;
         #endregion
 
         #region Constructor
@@ -34,7 +34,7 @@ namespace LudoClassLibrary
         /// <param name="basePositionId">Position from 0 to 3</param>
         internal Piece(LudoColor color, int basePositionId) 
         {
-            this.color = color;
+            this.Color = color;
             this.BasePositionId = basePositionId;
         }
         #endregion

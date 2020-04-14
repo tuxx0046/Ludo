@@ -11,47 +11,40 @@ namespace LudoClassLibrary
         #endregion
 
         #region Methods
-        internal int TakeTurn(int dieValue, List<Piece> pieces)
+        /// <summary>
+        /// Takes boolean that tells if all pieces are in base or not to decide whether or not to roll more times.<br/>
+        /// Returns die value.
+        /// </summary>
+        /// <param name="pieces"></param>
+        /// <param name="areAllPiecesInBase"></param>
+        /// <returns></returns>
+        internal int RollDie(bool areAllPiecesInBase)
         {
-            
+            // 1st time rolling die 
+            int dieValue = Die.RandomDieValue;
 
-            // If rolled 6
-            if (dieValue == 6)
+            //If all pieces are in base and dieValue is not 6, allow rolls up to 2 more throws or until die value is 6
+            for (int i = 0; i < 2; i++)
             {
-                Piece pieceInBase = CheckIfPiecesAreInBase(pieces);
-                // If a piece is in the base, prioritize to get pieces out of base
-                if (pieceInBase != null )
+                if (areAllPiecesInBase == true && dieValue != 6)
                 {
-                    // Return the pieces position
-                    return pieceInBase.BasePositionId;
-                    
-                }
-                // If no pieces are in base (null)
-                else
-                {
-                    // Select a random piece
-                    int routePositionOfRandomPiece = SelectRandomPiece(dieValue, pieces);
-                    return routePositionOfRandomPiece;
+                    dieValue = Die.RandomDieValue;
                 }
             }
-            else
-            {
-                int routePositionOfRandomPiece = SelectRandomPiece(dieValue, pieces);
-                return routePositionOfRandomPiece;
-            }
+            return dieValue;
         }
 
         /// <summary>
         /// Check to see if there are pieces still in base.<br/>
         /// Returns the last checked piece in base or null.
         /// </summary>
-        /// <param name="dieValue"></param>
-        internal Piece CheckIfPiecesAreInBase(List<Piece> pieces)
+        internal Piece CheckIfAPieceIsInBase(List<Piece> pieces)
         {
             Piece pieceInBase = null;
-            for (int i = 0; i < pieces.Count - 1; i++)
+            for (int i = 0; i < pieces.Count; i++)
             {
-                if(pieces[i].inBase == true)
+                // Make sure that the pieces have not reachedGoal or they will also be included
+                if(pieces[i].InBase == true && pieces[i].ReachedGoal != true)
                 {
                     // Get the last piece in base to return
                     pieceInBase = pieces[i];
@@ -61,17 +54,18 @@ namespace LudoClassLibrary
         }
 
         /// <summary>
-        /// Check if all inBase fields are true for all piece items in list. <br/>
-        /// Returns true if all are in base.
+        /// Check if all pieces are in base. <br/>
+        /// Returns true if all playable pieces are in base.<br/>
+        /// Use to determine number of die rolls
         /// </summary>
         /// <param name="pieces"></param>
         /// <returns></returns>
         internal bool CheckIfAllPiecesAreInBase(List<Piece> pieces)
         {
             bool allInBase = true;
-            for (int i = 0; i < pieces.Count - 1; i++)
+            for (int i = 0; i < pieces.Count; i++)
             {
-                if (pieces[i].inBase == false)
+                if (pieces[i].InBase == false && pieces[i].ReachedGoal != true)
                 {
                     allInBase = false;
                 }
@@ -80,23 +74,41 @@ namespace LudoClassLibrary
         }
 
         /// <summary>
-        /// Select a random VALID piece that can be moved
+        /// Select a random VALID piece that can be moved, and returns its' position.
         /// </summary>
         internal int SelectRandomPiece(int dieValue, List<Piece> pieces)
         {
+            List<Piece> piecesOnRoute = new List<Piece>();
+            // Separate pieces not in base and no in goal
+            foreach (Piece piece in pieces)
+            {
+                if (piece.InBase == false && piece.ReachedGoal != true)
+                {
+                    piecesOnRoute.Add(piece);
+                }
+            }
+
+            // If only 1 in list, just return it
+            if (piecesOnRoute.Count == 1)
+            {
+                return piecesOnRoute[0].routePosition;
+            }
+
+            // If more than one, randomly pick one from list.
             Random rnd = new Random();
-            int randomPieceId = rnd.Next(0, pieces.Count - 1);
-            bool pieceWillPassAllyWithMove = CheckIfPieceWillPassAlly(dieValue, pieces[randomPieceId].RoutePosition, pieces);
+            int randomPieceBaseId = rnd.Next(0, piecesOnRoute.Count);
+            int routeposition = piecesOnRoute[randomPieceBaseId].routePosition;
+            bool pieceWillPassAllyWithMove = CheckIfPieceWillPassAlly(dieValue, routeposition, piecesOnRoute);
             
-            if (pieceWillPassAllyWithMove == true)
+            if (pieceWillPassAllyWithMove == false)
             {
                 // Return the position of the random piece
-                return pieces[randomPieceId].RoutePosition;
+                return piecesOnRoute[randomPieceBaseId].routePosition;
             }
             else
             {
                 // Just choose the position of piece furthest ahead
-                int routePositionOfPiece = PickPieceFurthestAhead(pieces);
+                int routePositionOfPiece = PickPieceFurthestAhead(piecesOnRoute);
                 return routePositionOfPiece;
             }
 
@@ -109,32 +121,32 @@ namespace LudoClassLibrary
         private bool CheckIfPieceWillPassAlly(int dieValue, int currentPosition, List<Piece> pieces)
         {
             int intendedPosition = currentPosition + dieValue;
-            for (int i = 0; i < pieces.Count - 1; i++)
+            for (int i = 0; i < pieces.Count; i++)
             {
-                if (currentPosition < pieces[i].RoutePosition && intendedPosition > pieces[i].RoutePosition)
+                if (currentPosition < pieces[i].routePosition && intendedPosition > pieces[i].routePosition)
                 {
                     return true;
                 }
-
             }
             return false;
         }
 
         /// <summary>
-        /// Returns the piece position of the piece closests to goal
+        /// Returns the piece position of the piece closest to goal
         /// </summary>
         /// <param name="pieces"></param>
         /// <returns></returns>
         private int PickPieceFurthestAhead(List<Piece> pieces)
         {
+            // Put the route positions of each valid piece in list
             List<int> sortedAfterRoutePosition = new List<int>();
             foreach (Piece piece in pieces)
             {
-                sortedAfterRoutePosition.Add(piece.RoutePosition);
+                sortedAfterRoutePosition.Add(piece.routePosition);
             }
             sortedAfterRoutePosition.Sort();
-            int indexOfPieceFurthestAhead = sortedAfterRoutePosition.Count - 1;
-            return indexOfPieceFurthestAhead;
+            int routePositionOfPieceFurthest = sortedAfterRoutePosition.Count - 1;
+            return routePositionOfPieceFurthest;
         }
 
         #endregion

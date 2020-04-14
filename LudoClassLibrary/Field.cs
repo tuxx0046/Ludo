@@ -15,11 +15,14 @@ namespace LudoClassLibrary
         /// <summary>
         /// Set to true in constructor if field is end goal
         /// </summary>
-        internal bool isGoal { get; } = false;
         /// <summary>
         /// Use to determine color and number of occupants. More than 0, means it is occupied
         /// </summary>
         internal List<Piece> occupants = new List<Piece>();
+        #endregion
+
+        #region Properties
+        internal bool IsGoal { get; } = false;
         #endregion
 
         #region Constructors
@@ -42,7 +45,7 @@ namespace LudoClassLibrary
         internal Field(string fieldId, bool isGoal)
         {
             this.fieldId = fieldId;
-            this.isGoal = isGoal;
+            this.IsGoal = isGoal;
         }
         #endregion
              
@@ -81,7 +84,7 @@ namespace LudoClassLibrary
 
         internal LudoColor GetOccupantColor()
         {
-            return occupants[0].color;
+            return occupants[0].Color;
         }
         #endregion
 

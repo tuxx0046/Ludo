@@ -100,10 +100,11 @@ namespace LudoClassLibrary
         /// <summary>
         /// Sets next currentPlayer, activaces die and updates information label
         /// </summary>
-        public void StartNextTurn()
+        public async void StartNextTurn()
         {
+            await Task.Delay(1000);
             GoToNextPlayer();
-            ui.ShowCurrentPlayer(currentPlayer.color.ToString());
+            ui.ShowCurrentPlayer(currentPlayer.Color.ToString());
             dieValue = 0;
             ui.btnDie.IsEnabled = true;
 
@@ -115,42 +116,44 @@ namespace LudoClassLibrary
             }
         }
 
-        private async void RunAI()
+        private void RunAI()
         {
-            await Task.Delay(1000);
             AIPlayer ai = currentPlayer as AIPlayer;
-            ThrowDie();
-            // Check to see if all pieces are in base
-            bool allPiecesInBase = ai.CheckIfAllPiecesAreInBase(playerPiecePairs[currentPlayer]);
-            if (allPiecesInBase == true && dieValue != 6)
-            {
-                for (int i = 0; i < 2; i++)
-                {
-                    ThrowDie();
-                }
-            }
-            Piece pieceInBase = ai.CheckIfPiecesAreInBase(playerPiecePairs[currentPlayer]);
 
-            if (allPiecesInBase == true && dieValue != 6)
+            // Check to see if ALL pieces are in base to decide times to allow die rolls
+            bool allPiecesInBase = ai.CheckIfAllPiecesAreInBase(playerPiecePairs[ai]);
+
+            // Throw the die and save the value
+            dieValue = ai.RollDie(allPiecesInBase);
+
+            // Show what the AI rolled
+            ui.UpdateInformationLabel("Rolled " + dieValue.ToString());
+
+            // Find the piece to move out of base. Gives null if none, or the last checked piece that is in base
+            Piece pieceInBase = ai.CheckIfAPieceIsInBase(playerPiecePairs[ai]);
+
+            // If all pieces or at least one piece is in base and rolled 6
+            if ((allPiecesInBase == true && dieValue == 6) || (pieceInBase != null && dieValue == 6))
+            {
+                // Move piece out of BASE - 1st priority
+                int indexOfPieceInbase = pieceInBase.BasePositionId;
+                ChoosePieceToMove(ui.btnColorBases[ai.Color][indexOfPieceInbase], EventArgs.Empty);
+                StartNextTurn();
+            }
+            // All pieces in base, but can't move them out of base - end turn
+            else if (allPiecesInBase == true && dieValue != 6)
             {
                 StartNextTurn();
             }
-            // Check to see if there is at least one piece in base
-            // If a piece is in the base, prioritize to get the piece out of base
-            else if (pieceInBase != null && dieValue == 6)
+            // At least 1 piece is not in base - Pick a piece not in base and move it
+            else if (allPiecesInBase == false)
             {
-                // Return the pieces position
-                ChoosePieceToMove(ui.btnColorBases[currentPlayer.color][pieceInBase.BasePositionId], EventArgs.Empty);
+                // Move piece FROM FIELD TO FIELD
+                int routeIndexOfRandomPiece = ai.SelectRandomPiece(dieValue, playerPiecePairs[ai]);
+                ChoosePieceToMove(ui.btnColorRoutes[ai.Color][routeIndexOfRandomPiece], EventArgs.Empty);
                 StartNextTurn();
             }
-            //If no pieces are in base (null)
-            else 
-            {
-                // Select a random piece
-                int routePositionOfRandomPiece = ai.SelectRandomPiece(dieValue, playerPiecePairs[currentPlayer]);
-                ChoosePieceToMove(ui.btnColorRoutes[currentPlayer.color][routePositionOfRandomPiece], EventArgs.Empty);
-                StartNextTurn();
-            }
+
         }
 
         // Subscribed to click event
@@ -166,7 +169,7 @@ namespace LudoClassLibrary
             // Check if all pieces are in base, to determine if player gets to roll die 3 times or gets of 6 whichever comes first            
             for (int i = 0; i < playerPiecePairs[currentPlayer].Count - 1; i++)
             {
-                if (playerPiecePairs[currentPlayer][i].inBase == false)
+                if (playerPiecePairs[currentPlayer][i].InBase == false)
                 {
                     allPiecesAreInBase = false;
                     break;
@@ -267,20 +270,20 @@ namespace LudoClassLibrary
             // Check if choice is valid
             bool isValidField = ValidateIfChosenBtnFieldIsPartOfRoute(chosenField);
             // Get index of field/piece
-            int fieldIndexPosition = ui.GetIndexOfField(currentPlayer.color, chosenField);
+            int fieldIndexPosition = ui.GetIndexOfField(currentPlayer.Color, chosenField);
 
             // Is the field part of current players route? Is there a piece on the field?
             if (isValidField == true)
             {
 
-                bool fieldHasValidPiece = FieldHasAPieceOnIt(currentPlayer.color, fieldIndexPosition);
+                bool fieldHasValidPiece = FieldHasAPieceOnIt(currentPlayer.Color, fieldIndexPosition);
 
                 // Is the chosen field to move Piece from part of base?
-                bool isBaseField = ui.btnColorBases[currentPlayer.color].Contains(chosenField) ? true : false;
+                bool isBaseField = ui.btnColorBases[currentPlayer.Color].Contains(chosenField) ? true : false;
 
                 // Find Position/index of field. Base(0-3) or Route(0-57)
-                int positionOfPiece = isBaseField ? ui.btnColorBases[currentPlayer.color].IndexOf(chosenField)
-                    : ui.btnColorRoutes[currentPlayer.color].IndexOf(chosenField);
+                int positionOfPiece = isBaseField ? ui.btnColorBases[currentPlayer.Color].IndexOf(chosenField)
+                    : ui.btnColorRoutes[currentPlayer.Color].IndexOf(chosenField);
 
                 // Move from base to field
                 if (isBaseField == true && dieValue == 6)
@@ -296,7 +299,7 @@ namespace LudoClassLibrary
                 else if (fieldHasValidPiece == true)
                 {
                     // Make sure not to pass ally
-                    bool alliesOnPath = WillIPassAllyWithThisMove(currentPlayer.color, positionOfPiece);
+                    bool alliesOnPath = WillIPassAllyWithThisMove(currentPlayer.Color, positionOfPiece);
                     if (alliesOnPath == true)
                     {
                         MessageNotAValidMove();
@@ -325,28 +328,25 @@ namespace LudoClassLibrary
             // Base position
             Piece pieceToMove = playerPiecePairs[currentPlayer][positionOfPiece];
             // Check if there is actually a piece standing on the basefield
-            if (pieceToMove.inBase == true)
+            if (pieceToMove.InBase == true)
             {
                 // Allow move to first field on route (index 0)
                 // First field on route does not need colorchange
-                pieceToMove.inBase = false;
-                pieceToMove.RoutePosition = 0;
+                pieceToMove.InBase = false;
+                pieceToMove.routePosition = 0;
                 
                 // Check to see if the target position is free for the taking
-                bool canMovePiece = CanTakeField(pieceToMove.RoutePosition, pieceToMove);
+                bool canMovePiece = CanTakeField(pieceToMove.routePosition, pieceToMove);
                 if (canMovePiece == true)
                 {
                     // Change color on button base field to show that current Piece has left it
-                    ui.ChangeColor(currentPlayer.color, chosenField);
+                    ui.ChangeColor(currentPlayer.Color, chosenField);
 
                     // Update occupantcount on target field (UI part). Index 0 because we're moving piece from base to first field on route
-                    ui.ChangeNumberOfOccuppants(ludoBoard.routes[currentPlayer.color][0].CountOccupants(), ui.btnColorRoutes[currentPlayer.color][0]);
-                   
-
+                    ui.ChangeNumberOfOccuppants(ludoBoard.routes[currentPlayer.Color][0].CountOccupants(), ui.btnColorRoutes[currentPlayer.Color][0]);
                 }
                 else if (canMovePiece == false)
                 {
-                    
                     MessageYouGotHitBack();
                 }
                 
@@ -361,24 +361,24 @@ namespace LudoClassLibrary
 
         private void MovePieceFromFieldToField(int pieceIndexPosition, Button chosenField)
         {
-            Field fieldToMoveFrom = ludoBoard.routes[currentPlayer.color][pieceIndexPosition];
-            Piece pieceToMove = ludoBoard.routes[currentPlayer.color][pieceIndexPosition].occupants[0];
+            Field fieldToMoveFrom = ludoBoard.routes[currentPlayer.Color][pieceIndexPosition];
+            Piece pieceToMove = ludoBoard.routes[currentPlayer.Color][pieceIndexPosition].occupants[0];
 
             // Old position before move attempt
-            int currentPosition = pieceToMove.RoutePosition;
+            int currentPosition = pieceToMove.routePosition;
 
             // Update piece position to new value for new field position
-            int newPosition = pieceToMove.RoutePosition + dieValue;
+            int newPosition = pieceToMove.routePosition + dieValue;
             if (newPosition > 56)
             {
                 int positionsToMoveBack = newPosition - 56;
                 newPosition = 56 - positionsToMoveBack;
             }
-            pieceToMove.RoutePosition = newPosition;
+            pieceToMove.routePosition = newPosition;
 
-            Field fieldToMoveTo = ludoBoard.routes[currentPlayer.color][pieceToMove.RoutePosition];
+            Field fieldToMoveTo = ludoBoard.routes[currentPlayer.Color][pieceToMove.routePosition];
 
-            bool canMovePiece = CanTakeField(pieceToMove.RoutePosition, pieceToMove);
+            bool canMovePiece = CanTakeField(pieceToMove.routePosition, pieceToMove);
             if (canMovePiece == true)
             {
                 // Remove piece from old field
@@ -396,8 +396,8 @@ namespace LudoClassLibrary
                 }
                 
                 // Change color on field moving to
-                ui.ChangeColor(currentPlayer.color, ui.btnColorRoutes[currentPlayer.color][pieceToMove.RoutePosition]);
-                ui.ChangeNumberOfOccuppants(fieldToMoveTo.CountOccupants(), ui.btnColorRoutes[currentPlayer.color][pieceToMove.RoutePosition]);
+                ui.ChangeColor(currentPlayer.Color, ui.btnColorRoutes[currentPlayer.Color][pieceToMove.routePosition]);
+                ui.ChangeNumberOfOccuppants(fieldToMoveTo.CountOccupants(), ui.btnColorRoutes[currentPlayer.Color][pieceToMove.routePosition]);
 
             }
             else
@@ -419,11 +419,11 @@ namespace LudoClassLibrary
                 MessageYouGotHitBack();
             }
             // Set goal if reached goal
-            if (pieceToMove.RoutePosition == 56)
+            if (pieceToMove.routePosition == 56)
             {
-                pieceToMove.reachedGoal = true;
+                pieceToMove.ReachedGoal = true;
                 // Remove piece from player's list of pieces
-                playerPiecePairs[currentPlayer].Remove(pieceToMove);
+                //playerPiecePairs[currentPlayer].Remove(pieceToMove);
             }
 
         }
@@ -449,9 +449,15 @@ namespace LudoClassLibrary
             }
         }
 
+        /// <summary>
+        /// Check to see if there is a piece on field to actually move
+        /// </summary>
+        /// <param name="color"></param>
+        /// <param name="fieldIndexPosition"></param>
+        /// <returns></returns>
         private bool FieldHasAPieceOnIt(LudoColor color, int fieldIndexPosition)
         {
-            if (ludoBoard.routes[color][fieldIndexPosition].CountOccupants() > 0 && ludoBoard.routes[color][fieldIndexPosition].GetOccupantColor() == currentPlayer.color)
+            if (ludoBoard.routes[color][fieldIndexPosition].CountOccupants() > 0 && ludoBoard.routes[color][fieldIndexPosition].GetOccupantColor() == currentPlayer.Color)
             {
                 return true;
             }
@@ -470,18 +476,18 @@ namespace LudoClassLibrary
         /// <returns></returns>
         private bool CanTakeField(int index, Piece pieceToMove)
         {
-            Field targetField = ludoBoard.routes[currentPlayer.color][index];
+            Field targetField = ludoBoard.routes[currentPlayer.Color][index];
             
             // Hit opponent back to base if only one opponent
-            if (targetField.CountOccupants() == 1 && targetField.GetOccupantColor() != currentPlayer.color)
+            if (targetField.CountOccupants() == 1 && targetField.GetOccupantColor() != currentPlayer.Color)
             {
                 // Set opponent status to "in base"
-                targetField.occupants[0].inBase = true;
+                targetField.occupants[0].InBase = true;
                 // Reset opponent position
-                targetField.occupants[0].RoutePosition = 0;
+                targetField.occupants[0].routePosition = 0;
                 // Put opponent color back in opponent base (UI part)
                 int opponentPieceId = targetField.occupants[0].BasePositionId;
-                LudoColor opponentColor = targetField.occupants[0].color;
+                LudoColor opponentColor = targetField.occupants[0].Color;
                 ui.ChangeColor(opponentColor, ui.btnColorBases[opponentColor][opponentPieceId]);
                 // Remove opponent from ludoboard field
                 targetField.RemoveOccupant();
@@ -491,13 +497,13 @@ namespace LudoClassLibrary
                 return true;
             }
             // Get hit back by opponent
-            else if (targetField.CountOccupants() > 1 && targetField.GetOccupantColor() != currentPlayer.color)
+            else if (targetField.CountOccupants() > 1 && targetField.GetOccupantColor() != currentPlayer.Color)
             {
                 
-                pieceToMove.inBase = true;
-                pieceToMove.RoutePosition = 0;
+                pieceToMove.InBase = true;
+                pieceToMove.routePosition = 0;
                 // Update ui on base field
-                ui.ChangeColor(pieceToMove.color, ui.btnColorBases[pieceToMove.color][pieceToMove.BasePositionId]);
+                ui.ChangeColor(pieceToMove.Color, ui.btnColorBases[pieceToMove.Color][pieceToMove.BasePositionId]);
                 return false;
             }
             else
@@ -510,7 +516,7 @@ namespace LudoClassLibrary
         private bool ValidateIfChosenBtnFieldIsPartOfRoute(Button chosenField)
         {
             // Check if clicked field is part of the base or route of the current player, and is not the goal field
-            if (ui.btnColorBases[currentPlayer.color].Contains(chosenField) || ui.btnColorRoutes[currentPlayer.color].Contains(chosenField) && chosenField != ui.btnColorRoutes[currentPlayer.color][56])
+            if (ui.btnColorBases[currentPlayer.Color].Contains(chosenField) || ui.btnColorRoutes[currentPlayer.Color].Contains(chosenField) && chosenField != ui.btnColorRoutes[currentPlayer.Color][56])
             {
                 return true;
             }
@@ -539,27 +545,30 @@ namespace LudoClassLibrary
         /// </summary>
         private void CheckForWinner()
         {
-            //int numberOfPieces = 4;
-            //bool allPiecesReachedGoal = true;
-            //for (int i = 1; i <= numberOfPieces; i++)
-            //{
-            //    if(playerPiecePairs[currentPlayer][i].reachedGoal == false)
-            //    {
-            //        allPiecesReachedGoal = false;
-            //    }
-            //}
-
-
+            int index = playerPiecePairs[currentPlayer].Count;
             bool allPiecesReachedGoal = false;
-            if (playerPiecePairs[currentPlayer].Count == 0)
+            for (int i = 0; i < index; i++)
             {
-                allPiecesReachedGoal = true;
+                if (playerPiecePairs[currentPlayer][i].ReachedGoal == true)
+                {
+                    allPiecesReachedGoal = true;
+                }
             }
+
+
+            //bool allPiecesReachedGoal = false;
+            //if (playerPiecePairs[currentPlayer].Count == 0)
+            //{
+            //    allPiecesReachedGoal = true;
+            //}
 
             if (allPiecesReachedGoal == true)
             {
                 ui.UpdateInformationLabel("Won the game!");
-                MessageBox.Show(currentPlayer.color.ToString() + " has won the game!");
+                MessageBox.Show(currentPlayer.Color.ToString() + " has won the game!");
+                // Restart application
+                System.Diagnostics.Process.Start(Application.ResourceAssembly.Location);
+                Application.Current.Shutdown();
             }
             
         }
