@@ -275,7 +275,6 @@ namespace LudoClassLibrary
             // Is the field part of current players route? Is there a piece on the field?
             if (isValidField == true)
             {
-
                 bool fieldHasValidPiece = FieldHasAPieceOnIt(currentPlayer.Color, fieldIndexPosition);
 
                 // Is the chosen field to move Piece from part of base?
@@ -315,7 +314,6 @@ namespace LudoClassLibrary
                 MessageNotAValidMove();
             }
             CheckForWinner();
-
         }
 
         /// <summary>
